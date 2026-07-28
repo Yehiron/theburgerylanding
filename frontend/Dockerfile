@@ -1,16 +1,26 @@
-FROM node:22-alpine
+# Etapa 1: Build 
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies
+# Instalar dependencias
 COPY package*.json ./
 RUN npm install
 
-# Copy source code
+# Copiar el proyecto
 COPY . .
 
-# Expose port
-EXPOSE 5173
+# Construir la aplicación
+RUN npm run build
 
-# Run the application
-CMD ["npm", "run", "dev", "--", "--host"]
+# Etapa 2 Producción 
+FROM nginx:alpine
+
+# Copiar el build generado
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Exponer el puerto 80
+EXPOSE 80
+
+# Iniciar Nginx
+CMD ["nginx", "-g", "daemon off;"]
