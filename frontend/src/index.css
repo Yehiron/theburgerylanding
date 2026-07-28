@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-inter bg-light text-dark overflow-x-hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bebas tracking-wider;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 shadow-lg;
+  }
+  
+  .glass-dark {
+    @apply bg-black bg-opacity-40 backdrop-blur-md border border-gray-700 shadow-xl;
+  }
+  
+  /* Touch target helper: minimum 48x48 for comfortable tapping */
+  .tap-target {
+    min-width: 48px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Subtle mobile-friendly animations */
+  .soft-appear {
+    transition: transform 280ms cubic-bezier(.2,.9,.2,1), opacity 280ms ease;
+    will-change: transform, opacity;
+  }
+}
+
+/* Mobile & tablet specific tweaks (<=1023px) to refine spacing and performance */
+@media (max-width: 1023px) {
+  /* Reduce heavy backdrops on smaller screens for performance */
+  .glass, .glass-dark {
+    backdrop-filter: blur(6px);
+  }
+
+  /* Slightly smaller paddings globally on mobile where necessary */
+  .max-w-7xl > .px-4, .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Ensure hero visuals don't force extreme scroll on small screens */
+  .relative.min-h-\[60vh\] {
+    min-height: 60vh;
+  }
+}
+
+/* Safe area helpers (works on iOS devices; zero on platforms that don't support it) */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Minor helper to reduce motion jitter for small devices */
+.soft-appear {
+  transform: translateZ(0);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+::-webkit-scrollbar-thumb {
+  background: #333; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #111; 
+}
