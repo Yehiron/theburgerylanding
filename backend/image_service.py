@@ -116,10 +116,12 @@ class ImageService:
 
             final_path = os.path.join(self.upload_dir, unique_name)
             # atomic write
-            with open(tmp_path, 'wb') as f:
+            with open(final_path, "wb") as f:
                 f.write(bio.read())
 
-            os.replace(tmp_path, final_path)
+            # Elimina el temporal
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
             # Return the public URL path
             return f"/uploads/{unique_name}"
