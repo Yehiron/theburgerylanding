@@ -197,7 +197,7 @@ export default function MenuPage() {
               
               <textarea 
                 ref={notesInputRef}
-                className="w-full p-4 border rounded-xl text-sm focus:ring-black focus:border-black outline-none mb-6"
+                className="w-full p-4 border rounded-xl text-base md:text-sm focus:ring-black focus:border-black outline-none mb-6"
                 rows="3"
                 placeholder="Ej. Sin cebolla, extra salsa..."
                 value={productNotes}
