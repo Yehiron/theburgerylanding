@@ -21,7 +21,6 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { ...product, quantity: 1, notes, cartItemId: Date.now() + Math.random().toString(36).substring(2, 9) }];
     });
-    setIsCartOpen(true);
   };
 
   const removeFromCart = (cartItemId) => {

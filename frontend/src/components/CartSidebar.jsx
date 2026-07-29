@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { FiX, FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi';
+import { FiX, FiPlus, FiMinus, FiTrash2, FiShoppingCart } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
 export default function CartSidebar() {
-  const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
+  const { cart, cartCount, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
@@ -52,7 +52,24 @@ export default function CartSidebar() {
   };
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
+        {cartCount > 0 && !isCartOpen && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={() => setIsCartOpen(true)}
+            className="fixed right-4 bottom-5 sm:right-6 sm:bottom-6 z-40 rounded-full bg-black px-5 py-4 text-sm font-bold text-white shadow-xl transition-transform hover:scale-105 flex items-center gap-2"
+          >
+            <FiShoppingCart size={20} />
+            Ir al carrito
+            <span className="min-w-6 h-6 px-1 rounded-full bg-primary inline-flex items-center justify-center text-xs">{cartCount}</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
       {isCartOpen && (
         <>
           <motion.div 
@@ -70,7 +87,10 @@ export default function CartSidebar() {
             className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col"
           >
             <div className="p-6 border-b flex justify-between items-center bg-gray-50">
-              <h2 className="text-2xl font-bebas text-dark">Tu Carrito</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-2xl font-bebas text-dark">Tu Carrito</h2>
+                <span className="rounded-full bg-primary px-2 py-1 text-xs font-bold text-white">{cartCount} {cartCount === 1 ? 'producto' : 'productos'}</span>
+              </div>
               <button onClick={() => setIsCartOpen(false)} className="p-3 tap-target hover:bg-gray-200 rounded-full">
                 <FiX size={24} />
               </button>
@@ -158,6 +178,7 @@ export default function CartSidebar() {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   );
 }
