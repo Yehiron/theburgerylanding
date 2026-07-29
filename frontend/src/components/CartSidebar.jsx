@@ -3,7 +3,7 @@ import { useCart } from '../context/CartContext';
 import { FiX, FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function CartSidebar() {
   const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, cartTotal } = useCart();

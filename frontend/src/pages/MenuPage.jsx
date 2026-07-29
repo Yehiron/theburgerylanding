@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { FiPlus, FiSearch } from 'react-icons/fi';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function MenuPage() {
   const [categories, setCategories] = useState([]);

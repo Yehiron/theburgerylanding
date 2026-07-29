@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { FiPlus, FiTrash2 } from 'react-icons/fi';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 export default function Dashboard() {
   const [categories, setCategories] = useState([]);
