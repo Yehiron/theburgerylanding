@@ -11,11 +11,12 @@ export default function CartSidebar() {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState('delivery');
   const PHONE_NUMBER = "573248450908"; // Código país Colombia temporal
 
   const handleSendOrder = () => {
-    if (!customerName || !customerPhone || !customerAddress) {
-      alert("Por favor, completa tus datos de envío antes de continuar.");
+    if (!customerName || !customerPhone || (deliveryMethod === 'delivery' && !customerAddress)) {
+      alert(deliveryMethod === 'delivery' ? "Por favor, completa tus datos y la dirección de entrega antes de continuar." : "Por favor, completa tus datos antes de continuar.");
       return;
     }
     
@@ -26,7 +27,8 @@ export default function CartSidebar() {
       "👤 *Datos del Cliente:*",
       `• Nombre: ${customerName}`,
       `• Teléfono: ${customerPhone}`,
-      `• Dirección: ${customerAddress}`,
+      `• Modalidad: ${deliveryMethod === 'pickup' ? 'Recoger en tienda' : 'Domicilio'}`,
+      ...(deliveryMethod === 'delivery' ? [`• Dirección: ${customerAddress}`, '• Envío: se confirma según la dirección.'] : []),
       "",
       "🛒 *Pedido:*"
     ];
@@ -39,7 +41,8 @@ export default function CartSidebar() {
     });
     
     lines.push("");
-    lines.push(`💰 *Total:* $${money.format(cartTotal)}`);
+    lines.push(`💰 *Subtotal:* $${money.format(cartTotal)}`);
+    lines.push(deliveryMethod === 'delivery' ? '🚚 *Total final:* subtotal + valor de envío según la dirección.' : `💰 *Total:* $${money.format(cartTotal)}`);
     
     const message = lines.join('\n');
     const url = `https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(message)}`;
@@ -49,6 +52,7 @@ export default function CartSidebar() {
     setCustomerName('');
     setCustomerPhone('');
     setCustomerAddress('');
+    setDeliveryMethod('delivery');
   };
 
   return (
@@ -133,10 +137,17 @@ export default function CartSidebar() {
               <div className="p-6 bg-gray-50 border-t">
                 <div className="space-y-4 mb-6">
                   <div>
+                    <span className="block text-xs font-semibold text-gray-600 mb-2 uppercase">¿Cómo quieres recibir tu pedido?</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button type="button" onClick={() => setDeliveryMethod('delivery')} className={`rounded-lg border px-3 py-3 text-sm font-bold transition-colors ${deliveryMethod === 'delivery' ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}>Domicilio</button>
+                      <button type="button" onClick={() => setDeliveryMethod('pickup')} className={`rounded-lg border px-3 py-3 text-sm font-bold transition-colors ${deliveryMethod === 'pickup' ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}>Recoger en tienda</button>
+                    </div>
+                  </div>
+                  <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Nombre y Apellido *</label>
                     <input 
                       type="text" 
-                      className="w-full p-3 border rounded-lg text-sm focus:ring-black focus:border-black outline-none" 
+                      className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" 
                       placeholder="Ej. Juan Pérez"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
@@ -146,27 +157,28 @@ export default function CartSidebar() {
                     <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Celular *</label>
                     <input 
                       type="tel" 
-                      className="w-full p-3 border rounded-lg text-sm focus:ring-black focus:border-black outline-none" 
+                      className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" 
                       placeholder="Ej. 3001234567"
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                     />
                   </div>
-                  <div>
+                  {deliveryMethod === 'delivery' && <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Dirección de entrega *</label>
                     <input 
                       type="text" 
-                      className="w-full p-3 border rounded-lg text-sm focus:ring-black focus:border-black outline-none" 
+                      className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" 
                       placeholder="Ej. Calle 123 #45-67 Apto 101"
                       value={customerAddress}
                       onChange={(e) => setCustomerAddress(e.target.value)}
                     />
-                  </div>
+                  </div>}
                 </div>
                 <div className="flex justify-between items-center mb-6">
-                  <span className="text-lg font-semibold">Total</span>
+                  <span className="text-lg font-semibold">{deliveryMethod === 'delivery' ? 'Subtotal' : 'Total'}</span>
                   <span className="text-3xl font-bebas text-black">${money.format(cartTotal)}</span>
                 </div>
+                {deliveryMethod === 'delivery' && <p className="mb-4 rounded-lg bg-white p-3 text-xs leading-relaxed text-gray-600">El valor total del pedido se calcula sumando el envío, el cual depende de la dirección de entrega.</p>}
                 <button 
                   onClick={handleSendOrder}
                   className="w-full py-4 bg-gray-500 text-white font-bold rounded-xl hover:bg-opacity-90 transition-all flex justify-center items-center gap-2 uppercase tracking-wide"
