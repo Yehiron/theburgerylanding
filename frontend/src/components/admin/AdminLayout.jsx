@@ -39,7 +39,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main data-scroll-container className="flex-1 overflow-y-auto">
         <div className="p-8">
           <Outlet />
         </div>

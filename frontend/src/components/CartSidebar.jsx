@@ -4,9 +4,10 @@ import { FiX, FiPlus, FiMinus, FiTrash2 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
+const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
 export default function CartSidebar() {
-  const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, cartTotal } = useCart();
+  const { cart, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
@@ -31,18 +32,23 @@ export default function CartSidebar() {
     ];
     
     cart.forEach(item => {
-      lines.push(`• ${item.quantity}x ${item.name} ($${item.price * item.quantity})`);
+      lines.push(`• ${item.quantity}x ${item.name} ($${money.format(item.price * item.quantity)})`);
       if (item.notes && item.notes.trim() !== "") {
         lines.push(`   ↳ 📝 *Nota:* ${item.notes.trim()}`);
       }
     });
     
     lines.push("");
-    lines.push(`💰 *Total:* $${cartTotal}`);
+    lines.push(`💰 *Total:* $${money.format(cartTotal)}`);
     
     const message = lines.join('\n');
     const url = `https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+    clearCart();
+    setIsCartOpen(false);
+    setCustomerName('');
+    setCustomerPhone('');
+    setCustomerAddress('');
   };
 
   return (
@@ -88,7 +94,7 @@ export default function CartSidebar() {
                     <div className="flex-1">
                       <h3 className="font-bold text-sm">{item.name}</h3>
                       {item.notes && <p className="text-xs text-gray-500 italic mt-1">{item.notes}</p>}
-                      <p className="text-gray-500 font-semibold mt-1">${item.price}</p>
+                      <p className="text-gray-500 font-semibold mt-1">${money.format(item.price)}</p>
                       <div className="flex items-center gap-3 mt-2">
                         <button onClick={() => updateQuantity(uniqueId, -1)} className="p-2 bg-gray-100 rounded tap-target"><FiMinus size={16}/></button>
                         <span className="text-sm font-medium">{item.quantity}</span>
@@ -139,7 +145,7 @@ export default function CartSidebar() {
                 </div>
                 <div className="flex justify-between items-center mb-6">
                   <span className="text-lg font-semibold">Total</span>
-                  <span className="text-3xl font-bebas text-black">${cartTotal}</span>
+                  <span className="text-3xl font-bebas text-black">${money.format(cartTotal)}</span>
                 </div>
                 <button 
                   onClick={handleSendOrder}

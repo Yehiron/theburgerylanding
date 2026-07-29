@@ -32,6 +32,7 @@ class Product(Base):
     image_url = Column(String, nullable=True)
     is_featured = Column(Boolean, default=False)
     is_available = Column(Boolean, default=True)
+    order = Column(Integer, default=0)
     category_id = Column(Integer, ForeignKey("categories.id"))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

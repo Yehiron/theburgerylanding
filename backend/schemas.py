@@ -39,6 +39,7 @@ class ProductBase(BaseModel):
     is_featured: Optional[bool] = False
     is_available: Optional[bool] = True
     category_id: int
+    order: Optional[int] = 0
 
 class ProductCreate(ProductBase):
     pass

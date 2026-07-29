@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { FiPlus, FiSearch } from 'react-icons/fi';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
+const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
 export default function MenuPage() {
   const [categories, setCategories] = useState([]);
@@ -123,7 +124,7 @@ export default function MenuPage() {
                     key={product.id}
                     className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group flex flex-col"
                   >
-                    <div className="h-48 sm:h-56 md:h-64 overflow-hidden relative bg-gray-100">
+                    <div className="h-[20.5rem] overflow-hidden relative bg-gray-100">
                       {product.image_url ? (
                         <img 
                           src={`${API_URL}${product.image_url}`} 
@@ -143,7 +144,7 @@ export default function MenuPage() {
                     <div className="p-6 flex-1 flex flex-col">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-2xl font-bold text-dark">{product.name}</h3>
-                        <span className="text-xl font-bebas text-gray-500">${product.price}</span>
+                        <span className="text-xl font-bebas text-gray-500">${money.format(product.price)}</span>
                       </div>
                       <p className="text-gray-500 text-sm mb-6 flex-1 line-clamp-3">{product.description}</p>
                       
@@ -165,7 +166,7 @@ export default function MenuPage() {
       {/* Modal de Observaciones */}
       <AnimatePresence>
         {selectedProduct && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 py-4">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 0.5 }} 
@@ -177,7 +178,7 @@ export default function MenuPage() {
               initial={{ opacity: 0, scale: 0.95 }} 
               animate={{ opacity: 1, scale: 1 }} 
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl p-8 max-w-md w-full relative z-10 shadow-2xl"
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto relative z-10 shadow-2xl"
             >
               <h3 className="text-3xl font-bebas text-dark mb-2">Añadir al Carrito</h3>
               <p className="text-gray-500 mb-6">¿Deseas agregar alguna observación para <strong>{selectedProduct.name}</strong>?</p>

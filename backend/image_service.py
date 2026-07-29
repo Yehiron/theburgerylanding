@@ -12,6 +12,7 @@ class ImageService:
     MAX_WIDTH = 1200
     MAX_HEIGHT = 1200
     QUALITY = 85  # between 80 and 85 as requested
+    MAX_FILE_SIZE = 5 * 1024 * 1024
 
     def __init__(self, upload_dir: str = 'uploads'):
         self.upload_dir = upload_dir
@@ -78,6 +79,12 @@ class ImageService:
                 upload_file.file.close()
             except Exception:
                 pass
+
+        if len(content) > self.MAX_FILE_SIZE:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="La imagen supera el límite de 5 MB. Elige una imagen más liviana."
+            )
 
         img = self._open_image(content)
 

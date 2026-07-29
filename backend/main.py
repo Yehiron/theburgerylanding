@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from image_service import ImageService
 import io
 
@@ -16,6 +17,12 @@ from database import engine, get_db
 
 # Crea tablas si no existen
 models.Base.metadata.create_all(bind=engine)
+
+# Small forward-compatible migration for installations created before product ordering.
+with engine.begin() as connection:
+    columns = [row[1] for row in connection.execute(text("PRAGMA table_info(products)"))]
+    if "order" not in columns:
+        connection.execute(text('ALTER TABLE products ADD COLUMN "order" INTEGER DEFAULT 0'))
 
 app = FastAPI(title="The Burgery API")
 
@@ -87,7 +94,7 @@ def delete_category(category_id: int, db: Session = Depends(get_db), current_use
 # --- Products ---
 @app.get("/api/products", response_model=List[schemas.Product])
 def get_products(db: Session = Depends(get_db)):
-    return db.query(models.Product).filter(models.Product.deleted_at == None).all()
+    return db.query(models.Product).filter(models.Product.deleted_at == None).order_by(models.Product.order, models.Product.id).all()
 
 @app.post("/api/products", response_model=schemas.Product)
 def create_product(
@@ -95,12 +102,15 @@ def create_product(
     description: str = Form(None),
     price: float = Form(...),
     category_id: int = Form(...),
+    order: int = Form(0),
     is_featured: bool = Form(False),
     is_available: bool = Form(True),
     image: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
+    if not db.query(models.Category).filter(models.Category.id == category_id, models.Category.deleted_at == None).first():
+        raise HTTPException(status_code=422, detail="Selecciona una categoría válida.")
     image_url = None
     if image:
         # Use ImageService to validate, optimize and save the uploaded image.
@@ -113,6 +123,7 @@ def create_product(
         category_id=category_id,
         is_featured=is_featured,
         is_available=is_available,
+        order=order,
         image_url=image_url
     )
     try:
@@ -120,16 +131,14 @@ def create_product(
         db.commit()
         db.refresh(db_product)
         return db_product
-    except Exception as e:
+    except Exception as error:
         import traceback
-    traceback.print_exc()
-
-    db.rollback()
-
-    raise HTTPException(
-        status_code=500,
-        detail=str(e)
-    )
+        traceback.print_exc()
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="No se pudo guardar el producto. Inténtalo nuevamente."
+        ) from error
 
 @app.put("/api/products/{product_id}", response_model=schemas.Product)
 def update_product(
@@ -138,6 +147,7 @@ def update_product(
     description: str = Form(None),
     price: float = Form(...),
     category_id: int = Form(...),
+    order: int = Form(0),
     is_featured: bool = Form(False),
     is_available: bool = Form(True),
     image: UploadFile = File(None),
@@ -147,6 +157,8 @@ def update_product(
     db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
+    if not db.query(models.Category).filter(models.Category.id == category_id, models.Category.deleted_at == None).first():
+        raise HTTPException(status_code=422, detail="Selecciona una categoría válida.")
 
     if image:
         # Replace existing image via ImageService
@@ -158,6 +170,7 @@ def update_product(
     db_product.category_id = category_id
     db_product.is_featured = is_featured
     db_product.is_available = is_available
+    db_product.order = order
 
     db.commit()
     db.refresh(db_product)

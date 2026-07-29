@@ -6,11 +6,13 @@ import Login from './pages/admin/Login';
 import Layout from './components/Layout';
 import AdminLayout from './components/admin/AdminLayout';
 import { CartProvider } from './context/CartContext';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
     <CartProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Rutas Públicas */}
           <Route path="/" element={<Layout />}>
