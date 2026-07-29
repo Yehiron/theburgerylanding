@@ -184,7 +184,7 @@ export default function CartSidebar() {
             {cart.length > 0 && (
               <div className="border-t bg-white p-4 sm:p-6 pb-safe">
                 {isCheckout ? (
-                  <button onClick={handleSendOrder} className="w-full rounded-xl bg-primary py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
+                  <button onClick={handleSendOrder} className="w-full rounded-xl bg-black py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
                     Comprar por WhatsApp
                   </button>
                 ) : (
@@ -192,7 +192,7 @@ export default function CartSidebar() {
                     <button onClick={closeCart} className="rounded-xl border-2 border-black bg-white px-3 py-4 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:bg-gray-100">
                       Seguir comprando
                     </button>
-                    <button onClick={() => setIsCheckout(true)} className="rounded-xl bg-primary px-3 py-4 text-sm font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
+                    <button onClick={() => setIsCheckout(true)} className="rounded-xl bg-black px-3 py-4 text-sm font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
                       Terminar compra
                     </button>
                   </div>
