@@ -115,10 +115,21 @@ def create_product(
         is_available=is_available,
         image_url=image_url
     )
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+    try:
+        db.add(db_product)
+        db.commit()
+        db.refresh(db_product)
+        return db_product
+    except Exception as e:
+        import traceback
+    traceback.print_exc()
+
+    db.rollback()
+
+    raise HTTPException(
+        status_code=500,
+        detail=str(e)
+    )
 
 @app.put("/api/products/{product_id}", response_model=schemas.Product)
 def update_product(
