@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
@@ -15,6 +15,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productNotes, setProductNotes] = useState('');
+  const notesInputRef = useRef(null);
   const { addToCart } = useCart();
 
   const handleAddToCartClick = (product) => {
@@ -50,6 +51,17 @@ export default function MenuPage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!selectedProduct) return;
+
+    const focusNotes = window.requestAnimationFrame(() => {
+      notesInputRef.current?.focus({ preventScroll: true });
+      notesInputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    });
+
+    return () => window.cancelAnimationFrame(focusNotes);
+  }, [selectedProduct]);
 
   const filteredProducts = products.filter(p => {
     const matchCategory = activeCategory === 'all' || p.category_id === activeCategory;
@@ -166,7 +178,7 @@ export default function MenuPage() {
       {/* Modal de Observaciones */}
       <AnimatePresence>
         {selectedProduct && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 py-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-4 overflow-y-auto">
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 0.5 }} 
@@ -178,18 +190,18 @@ export default function MenuPage() {
               initial={{ opacity: 0, scale: 0.95 }} 
               animate={{ opacity: 1, scale: 1 }} 
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto relative z-10 shadow-2xl"
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto relative z-10 shadow-2xl my-auto"
             >
               <h3 className="text-3xl font-bebas text-dark mb-2">Añadir al Carrito</h3>
               <p className="text-gray-500 mb-6">¿Deseas agregar alguna observación para <strong>{selectedProduct.name}</strong>?</p>
               
               <textarea 
+                ref={notesInputRef}
                 className="w-full p-4 border rounded-xl text-sm focus:ring-black focus:border-black outline-none mb-6"
                 rows="3"
                 placeholder="Ej. Sin cebolla, extra salsa..."
                 value={productNotes}
                 onChange={(e) => setProductNotes(e.target.value)}
-                autoFocus
               ></textarea>
               
               <div className="flex gap-4">
