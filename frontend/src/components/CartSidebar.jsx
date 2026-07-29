@@ -8,11 +8,17 @@ const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
 export default function CartSidebar() {
   const { cart, cartCount, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
+  const [isCheckout, setIsCheckout] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState('delivery');
   const PHONE_NUMBER = "573248450908"; // Código país Colombia temporal
+
+  const closeCart = () => {
+    setIsCartOpen(false);
+    setIsCheckout(false);
+  };
 
   const handleSendOrder = () => {
     if (!customerName || !customerPhone || (deliveryMethod === 'delivery' && !customerAddress)) {
@@ -48,7 +54,7 @@ export default function CartSidebar() {
     const url = `https://api.whatsapp.com/send?phone=${PHONE_NUMBER}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     clearCart();
-    setIsCartOpen(false);
+    closeCart();
     setCustomerName('');
     setCustomerPhone('');
     setCustomerAddress('');
@@ -80,7 +86,7 @@ export default function CartSidebar() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 0.5 }} 
             exit={{ opacity: 0 }}
-            onClick={() => setIsCartOpen(false)}
+            onClick={closeCart}
             className="fixed inset-0 bg-black z-50"
           />
           <motion.div 
@@ -95,7 +101,7 @@ export default function CartSidebar() {
                 <h2 className="text-2xl font-bebas text-dark">Tu Carrito</h2>
                 <span className="rounded-full bg-primary px-2 py-1 text-xs font-bold text-white">{cartCount} {cartCount === 1 ? 'producto' : 'productos'}</span>
               </div>
-              <button onClick={() => setIsCartOpen(false)} className="p-3 tap-target hover:bg-gray-200 rounded-full">
+              <button onClick={closeCart} className="p-3 tap-target hover:bg-gray-200 rounded-full" aria-label="Cerrar carrito">
                 <FiX size={24} />
               </button>
             </div>
@@ -106,7 +112,9 @@ export default function CartSidebar() {
                   <p>Tu carrito está vacío.</p>
                 </div>
               ) : (
-                cart.map(item => {
+                <>
+                <div className="space-y-4">
+                {cart.map(item => {
                   const uniqueId = item.cartItemId || item.id;
                   return (
                   <div key={uniqueId} className="flex gap-4 items-center border-b pb-4">
@@ -129,62 +137,66 @@ export default function CartSidebar() {
                       <FiTrash2 size={18} />
                     </button>
                   </div>
-                )})
+                )})}
+                </div>
+
+                <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-gray-700">Subtotal del pedido</span>
+                    <span className="text-2xl font-bebas text-black">${money.format(cartTotal)}</span>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">El envío se confirma según la dirección de entrega.</p>
+                </div>
+
+                {isCheckout && (
+                  <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="text-xl font-bebas text-dark">Datos para tu compra</h3>
+                      <button type="button" onClick={() => setIsCheckout(false)} className="text-xs font-bold text-gray-600 underline">Volver al pedido</button>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <span className="block text-xs font-semibold text-gray-600 mb-2 uppercase">¿Cómo quieres recibir tu pedido?</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button type="button" onClick={() => setDeliveryMethod('delivery')} className={`rounded-lg border px-3 py-3 text-sm font-bold transition-colors ${deliveryMethod === 'delivery' ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}>Domicilio</button>
+                          <button type="button" onClick={() => setDeliveryMethod('pickup')} className={`rounded-lg border px-3 py-3 text-sm font-bold transition-colors ${deliveryMethod === 'pickup' ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}>Recoger en tienda</button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Nombre y apellido *</label>
+                        <input type="text" className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" placeholder="Ej. Juan Pérez" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Celular *</label>
+                        <input type="tel" className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" placeholder="Ej. 3001234567" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
+                      </div>
+                      {deliveryMethod === 'delivery' && <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Dirección de entrega *</label>
+                        <input type="text" className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" placeholder="Ej. Calle 123 #45-67 Apto 101" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
+                      </div>}
+                    </div>
+                  </section>
+                )}
+                </>
               )}
             </div>
             
             {cart.length > 0 && (
-              <div className="p-6 bg-gray-50 border-t">
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <span className="block text-xs font-semibold text-gray-600 mb-2 uppercase">¿Cómo quieres recibir tu pedido?</span>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button type="button" onClick={() => setDeliveryMethod('delivery')} className={`rounded-lg border px-3 py-3 text-sm font-bold transition-colors ${deliveryMethod === 'delivery' ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}>Domicilio</button>
-                      <button type="button" onClick={() => setDeliveryMethod('pickup')} className={`rounded-lg border px-3 py-3 text-sm font-bold transition-colors ${deliveryMethod === 'pickup' ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}>Recoger en tienda</button>
-                    </div>
+              <div className="border-t bg-white p-4 sm:p-6 pb-safe">
+                {isCheckout ? (
+                  <button onClick={handleSendOrder} className="w-full rounded-xl bg-primary py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
+                    Comprar por WhatsApp
+                  </button>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <button onClick={closeCart} className="rounded-xl border-2 border-black bg-white px-3 py-4 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:bg-gray-100">
+                      Seguir comprando
+                    </button>
+                    <button onClick={() => setIsCheckout(true)} className="rounded-xl bg-primary px-3 py-4 text-sm font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
+                      Terminar compra
+                    </button>
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Nombre y Apellido *</label>
-                    <input 
-                      type="text" 
-                      className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" 
-                      placeholder="Ej. Juan Pérez"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Celular *</label>
-                    <input 
-                      type="tel" 
-                      className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" 
-                      placeholder="Ej. 3001234567"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                    />
-                  </div>
-                  {deliveryMethod === 'delivery' && <div>
-                    <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Dirección de entrega *</label>
-                    <input 
-                      type="text" 
-                      className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" 
-                      placeholder="Ej. Calle 123 #45-67 Apto 101"
-                      value={customerAddress}
-                      onChange={(e) => setCustomerAddress(e.target.value)}
-                    />
-                  </div>}
-                </div>
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-lg font-semibold">{deliveryMethod === 'delivery' ? 'Subtotal' : 'Total'}</span>
-                  <span className="text-3xl font-bebas text-black">${money.format(cartTotal)}</span>
-                </div>
-                {deliveryMethod === 'delivery' && <p className="mb-4 rounded-lg bg-white p-3 text-xs leading-relaxed text-gray-600">El valor total del pedido se calcula sumando el envío, el cual depende de la dirección de entrega.</p>}
-                <button 
-                  onClick={handleSendOrder}
-                  className="w-full py-4 bg-gray-500 text-white font-bold rounded-xl hover:bg-opacity-90 transition-all flex justify-center items-center gap-2 uppercase tracking-wide"
-                >
-                  Enviar pedido por WhatsApp
-                </button>
+                )}
               </div>
             )}
           </motion.div>
