@@ -16,11 +16,7 @@ export default function Footer() {
                   className="h-20 lg:h-40 w-auto"
                 />
               </Link></h2>
-            <p className="text-gray-400 text-sm">Las mejores hamburguesas premium de la ciudad. Calidad y sabor inigualables.</p>
-          </div>
-          <div>
-            <h3 className="text-xl font-bebas mb-4">Ubicación & Horario</h3>
-            <p className="text-gray-400 text-sm mb-2">Calle 22 Norte # 14-11</p>
+            <p className="text-gray-400 text-sm">Las mejores burgers premium de la ciudad. <br />EAT · SMILE · REPEAT</p>
           </div>
           <div>
             <h3 className="text-xl font-bebas mb-4">Enlaces</h3>
