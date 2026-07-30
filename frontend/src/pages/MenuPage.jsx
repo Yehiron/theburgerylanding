@@ -92,7 +92,7 @@ export default function MenuPage() {
             />
           </div>
           
-          <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto w-full md:w-auto pt-2 pb-3 px-1 scrollbar-hide">
             <button 
               onClick={() => setActiveCategory('all')}
               className={`px-6 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-all ${activeCategory === 'all' ? 'bg-dark text-white' : 'bg-white text-dark hover:bg-gray-100'}`}
