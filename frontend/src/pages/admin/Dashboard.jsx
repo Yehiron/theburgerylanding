@@ -153,7 +153,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl font-bebas text-dark">Dashboard</h1>
         <div className="flex gap-2">
-          {['products', 'categories'].map((tab) => <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-semibold ${activeTab === tab ? 'bg-primary text-white' : 'bg-white border'}`}>{tab === 'products' ? 'Productos' : 'Categorías'}</button>)}
+          {['products', 'categories'].map((tab) => <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-semibold ${activeTab === tab ? 'bg-black text-white' : 'bg-white border'}`}>{tab === 'products' ? 'Productos' : 'Categorías'}</button>)}
         </div>
       </div>
 

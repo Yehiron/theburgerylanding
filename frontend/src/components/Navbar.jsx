@@ -45,7 +45,7 @@ export default function Navbar() {
             <button onClick={() => setIsCartOpen(true)} className="relative p-3 rounded-full tap-target">
               <FiShoppingCart size={24} />
               {cartCount > 0 && (
-                <span className="absolute top-0 right-0 bg-primary text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
+                <span className="absolute top-0 right-0 bg-black text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
                   {cartCount}
                 </span>
               )}

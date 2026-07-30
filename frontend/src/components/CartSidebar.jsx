@@ -74,11 +74,11 @@ export default function CartSidebar() {
           >
             <FiShoppingCart size={20} />
             Ir al carrito
-            <span className="min-w-6 h-6 px-1 rounded-full bg-primary inline-flex items-center justify-center text-xs">{cartCount}</span>
+            <span className="min-w-6 h-6 px-1 rounded-full bg-black inline-flex items-center justify-center text-xs">{cartCount}</span>
           </motion.button>
         )}
       </AnimatePresence>
-
+ 
       <AnimatePresence>
       {isCartOpen && (
         <>
@@ -99,7 +99,7 @@ export default function CartSidebar() {
             <div className="p-6 border-b flex justify-between items-center bg-gray-50">
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-bebas text-dark">Tu Carrito</h2>
-                <span className="rounded-full bg-primary px-2 py-1 text-xs font-bold text-white">{cartCount} {cartCount === 1 ? 'producto' : 'productos'}</span>
+                <span className="rounded-full bg-black px-2 py-1 text-xs font-bold text-white">{cartCount} {cartCount === 1 ? 'producto' : 'productos'}</span>
               </div>
               <button onClick={closeCart} className="p-3 tap-target hover:bg-gray-200 rounded-full" aria-label="Cerrar carrito">
                 <FiX size={24} />
@@ -118,28 +118,41 @@ export default function CartSidebar() {
                   const uniqueId = item.cartItemId || item.id;
                   return (
                   <div key={uniqueId} className="flex gap-4 items-center border-b pb-4">
-                    {item.image_url ? (
-                       <img src={`${API_URL}${item.image_url}`} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
-                    ) : (
-                       <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-xs">Sin img</div>
+                    {!isCheckout && (
+                      item.image_url ? (
+                         <img src={`${API_URL}${item.image_url}`} alt={item.name} className="w-20 h-20 object-cover rounded-lg" />
+                      ) : (
+                         <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center text-xs">Sin img</div>
+                      )
                     )}
                     <div className="flex-1">
-                      <h3 className="font-bold text-sm">{item.name}</h3>
+                      <h3 className="font-bold text-sm">
+                        {isCheckout ? `${item.quantity}x ` : ''}{item.name}
+                      </h3>
                       {item.notes && <p className="text-xs text-gray-500 italic mt-1">{item.notes}</p>}
-                      <p className="text-gray-500 font-semibold mt-1">${money.format(item.price)}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <button onClick={() => updateQuantity(uniqueId, -1)} className="p-2 bg-gray-100 rounded tap-target"><FiMinus size={16}/></button>
-                        <span className="text-sm font-medium">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(uniqueId, 1)} className="p-2 bg-gray-100 rounded tap-target"><FiPlus size={16}/></button>
-                      </div>
+                      <p className="text-gray-500 font-semibold mt-1">
+                        {isCheckout 
+                          ? `$${money.format(item.price * item.quantity)}`
+                          : `$${money.format(item.price)}`
+                        }
+                      </p>
+                      {!isCheckout && (
+                        <div className="flex items-center gap-3 mt-2">
+                          <button onClick={() => updateQuantity(uniqueId, -1)} className="p-2 bg-gray-100 rounded tap-target"><FiMinus size={16}/></button>
+                          <span className="text-sm font-medium">{item.quantity}</span>
+                          <button onClick={() => updateQuantity(uniqueId, 1)} className="p-2 bg-gray-100 rounded tap-target"><FiPlus size={16}/></button>
+                        </div>
+                      )}
                     </div>
-                    <button onClick={() => removeFromCart(uniqueId)} className="text-gray-500 p-3 hover:bg-gray-50 rounded tap-target">
-                      <FiTrash2 size={18} />
-                    </button>
+                    {!isCheckout && (
+                      <button onClick={() => removeFromCart(uniqueId)} className="text-gray-500 p-3 hover:bg-gray-50 rounded tap-target">
+                        <FiTrash2 size={18} />
+                      </button>
+                    )}
                   </div>
                 )})}
                 </div>
-
+ 
                 <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-gray-700">Subtotal del pedido</span>
@@ -147,7 +160,7 @@ export default function CartSidebar() {
                   </div>
                   <p className="mt-2 text-xs text-gray-500">El envío se confirma según la dirección de entrega.</p>
                 </div>
-
+ 
                 {isCheckout && (
                   <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
@@ -182,7 +195,7 @@ export default function CartSidebar() {
             </div>
             
             {cart.length > 0 && (
-              <div className="border-t bg-white p-4 sm:p-6 pb-safe">
+              <div className="border-t bg-white p-4 pb-8 sm:p-6">
                 {isCheckout ? (
                   <button onClick={handleSendOrder} className="w-full rounded-xl bg-black py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
                     Comprar por WhatsApp
