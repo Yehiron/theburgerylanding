@@ -107,7 +107,7 @@ export default function MenuPage() {
                   <button 
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`px-6 py-2 rounded-full whitespace-nowrap text-base font-bold transition-all duration-300 transform shimmer-effect active:scale-95 ${
+                    className={`px-6 py-2 rounded-full whitespace-nowrap text-sm font-bold transition-all duration-300 transform shimmer-effect active:scale-95 ${
                       isActive 
                         ? 'burgermaster-btn-active shadow-[0_0_15px_rgba(201,162,39,0.5)] hover:-translate-y-1 hover:shadow-[0_10px_22px_rgba(201,162,39,0.65)]' 
                         : 'burgermaster-btn-inactive hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(201,162,39,0.4)]'

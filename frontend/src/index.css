@@ -106,15 +106,15 @@
 }
 
 .burgermaster-btn-active {
-  background: linear-gradient(135deg, #0b0b0b 0%, #2a2a2a 100%) !important;
+  background: #374151 !important; /* Gray-700 background */
   border: 1px solid #C9A227 !important;
-  color: white !important;
+  color: #C9A227 !important; /* Gold text */
 }
 
 .burgermaster-btn-inactive {
-  background: linear-gradient(135deg, #181818 0%, #0b0b0b 100%) !important;
+  background: #E5E7EB !important; /* Light gray background */
   border: 1px solid rgba(201, 162, 39, 0.35) !important;
-  color: #e5e7eb !important;
+  color: #927218 !important; /* Gold text (slightly darker for readability on light gray) */
 }
 
 .shimmer-effect {
