@@ -76,7 +76,7 @@ export default function MenuPage() {
         
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-bebas text-dark tracking-widest mb-4">NUESTRO <span className="text-black">MENÚ</span></h1>
-          <p className="text-gray-500 max-w-2xl mx-auto">Descubre nuestra selección de burgers premium, acompañamientos y bebidas. <br /><strong>Nuestros precios estan expresados en miles de pesos.</strong></p>
+          <p className="text-gray-500 max-w-2xl mx-auto">Más que burgers. Sabores creados para compartir, disfrutar y volver.</p>
         </div>
 
         {/* Search and Filters */}
@@ -99,15 +99,37 @@ export default function MenuPage() {
             >
               Todos
             </button>
-            {categories.map(cat => (
-              <button 
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`px-6 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-all ${activeCategory === cat.id ? 'bg-dark text-white' : 'bg-white text-dark hover:bg-gray-100'}`}
-              >
-                {cat.name}
-              </button>
-            ))}
+            {categories.map(cat => {
+              const isBurgerMaster = cat.name.toLowerCase() === 'burgermaster';
+              if (isBurgerMaster) {
+                const isActive = activeCategory === cat.id;
+                return (
+                  <button 
+                    key={cat.id}
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`px-6 py-2 rounded-full whitespace-nowrap text-base font-bold transition-all duration-300 transform shimmer-effect active:scale-95 ${
+                      isActive 
+                        ? 'burgermaster-btn-active shadow-[0_0_15px_rgba(201,162,39,0.5)] hover:-translate-y-1 hover:shadow-[0_10px_22px_rgba(201,162,39,0.65)]' 
+                        : 'burgermaster-btn-inactive hover:text-white hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(201,162,39,0.4)]'
+                    }`}
+                    style={{
+                      animation: 'burgermaster-pulse 5.5s infinite ease-in-out'
+                    }}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              }
+              return (
+                <button 
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-6 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-all ${activeCategory === cat.id ? 'bg-dark text-white' : 'bg-white text-dark hover:bg-gray-100'}`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 

@@ -84,3 +84,61 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #111; 
 }
+
+/* BurgerMaster highlighted button animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(100%) skewX(-15deg);
+  }
+}
+@keyframes burgermaster-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(201, 162, 39, 0.25);
+    border-color: rgba(201, 162, 39, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(201, 162, 39, 0.55);
+    border-color: rgba(201, 162, 39, 0.85);
+  }
+}
+
+.burgermaster-btn-active {
+  background: linear-gradient(135deg, #0b0b0b 0%, #2a2a2a 100%) !important;
+  border: 1px solid #C9A227 !important;
+  color: white !important;
+}
+
+.burgermaster-btn-inactive {
+  background: linear-gradient(135deg, #181818 0%, #0b0b0b 100%) !important;
+  border: 1px solid rgba(201, 162, 39, 0.35) !important;
+  color: #e5e7eb !important;
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+}
+
+.shimmer-effect:hover::after {
+  animation: shimmer 1.5s infinite ease-in-out;
+}
+
