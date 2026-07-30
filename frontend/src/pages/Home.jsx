@@ -71,7 +71,7 @@ export default function Home() {
             THE BURGERY <br />EN CASA
           </motion.h1>
           <motion.p variants={heroItem} className="mx-auto mb-9 max-w-md text-base font-light leading-relaxed text-gray-100/85 md:mb-10 md:text-lg">
-           <strong>Burgers artesanales <br /> Domicilios y pedidos para recoger.</strong>
+           <strong> <br /> ¿Se te antojó? <strong>Píde ahora</strong>  y disfrúta donde quieras. Domicilio o para recoger, tú eliges. Nosotros nos encargamos del resto</strong>
           </motion.p>
           <motion.div variants={heroItem} className="flex flex-col justify-center gap-4 sm:flex-row" whileHover={shouldReduceMotion ? undefined : { y: -2 }} whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }} transition={{ duration: 0.25, ease: "easeOut" }}>
             <Link to="/menu" className="w-full rounded-full border-2 border-white bg-transparent px-8 py-4 text-sm font-bold tracking-widest text-white shadow-[0_4px_16px_rgba(0,0,0,0.12)] transition-all duration-300 hover:scale-105 hover:bg-white hover:text-dark hover:shadow-[0_10px_28px_rgba(0,0,0,0.28)] sm:w-auto md:py-4">
@@ -92,9 +92,9 @@ export default function Home() {
             className="text-center max-w-3xl mx-auto"
           >
             <h2 className="text-sm font-semibold tracking-[0.3em] text-black mb-4 uppercase">Nuestra Filosofía</h2>
-            <h3 className="text-4xl md:text-5xl font-bebas mb-8">NO HACEMOS COMIDA RÁPIDA. HACEMOS HAMBURGUESAS QUE VALE LA PENA ESPERAR.</h3>
+            <h3 className="text-4xl md:text-5xl font-bebas mb-8">HAY DÍAS PARA CELEBRAR, DÍAS PARA DESCONECTARSE Y DÍAS EN LOS QUE SIMPLEMENTE QUIERES DARTE UN GUSTO.</h3>
             <p className="text-gray-600 leading-relaxed text-lg mb-12">
-              Carne premium, pan brioche recién horneado y salsas preparadas desde cero. Cuidamos cada detalle para que el primer mordisco sea tan memorable como el último.
+              Sea cual sea el motivo, queremos que encuentres en The Burgery un lugar donde la atención, el ambiente y sobre todo el sabor, hagan que cada visita se convierta en un momento especial, donde solo querrás repetir o probar algo nuevo en tu siguiente visita.
             </p>
           </motion.div>
         </div>
@@ -125,7 +125,7 @@ export default function Home() {
                 THE BURGERY <br />EN TU EVENTO
               </motion.h3>
               <motion.p variants={premiumItem} className="mb-10 -translate-y-[1cm] max-w-lg text-base leading-relaxed text-gray-300 max-md:translate-y-0 md:text-lg">
-                Lleva una experencia memorable a tu próximo evento. Reuniones, cumpleaños o celebraciones: nosotros cocinamos al instante para que tus invitados hablen de mucho más que la comida.
+                <strong>Haz que tu evento tenga un momento del que todos hablen.</strong>  Cocinamos nuestras burgers en el lugar para que cada invitado disfrute una experiencia recién hecha. Las fechas disponibles son limitadas, así que reserva con anticipación.
               </motion.p>
               <motion.div variants={premiumItem} className="mb-10 grid -translate-y-[1cm] grid-cols-3 gap-3 max-md:translate-y-0 sm:gap-5">
                 {[

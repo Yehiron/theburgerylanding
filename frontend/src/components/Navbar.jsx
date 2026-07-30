@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiMenu, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
@@ -8,6 +8,9 @@ import logo from "../assets/images/logo.png";
 export default function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="fixed w-full z-50 glass transition-all duration-300">
@@ -22,8 +25,26 @@ export default function Navbar() {
           </Link>
 
           <div className="hidden md:flex space-x-8 items-center">
-            <Link to="/" className="text-sm font-semibold uppercase hover:text-primary transition-colors">Inicio</Link>
-            <Link to="/menu" className="text-sm font-semibold uppercase hover:text-primary transition-colors">Menú</Link>
+            <Link 
+              to="/" 
+              className={`text-sm font-semibold uppercase pb-1 border-b-2 transition-all duration-200 ${
+                isActive('/') 
+                  ? 'border-gray-500 text-black' 
+                  : 'border-transparent text-gray-700 hover:text-black hover:border-gray-300'
+              }`}
+            >
+              Inicio
+            </Link>
+            <Link 
+              to="/menu" 
+              className={`text-sm font-semibold uppercase pb-1 border-b-2 transition-all duration-200 ${
+                isActive('/menu') 
+                  ? 'border-gray-500 text-black' 
+                  : 'border-transparent text-gray-700 hover:text-black hover:border-gray-300'
+              }`}
+            >
+              Menú
+            </Link>
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative p-2 md:p-2 lg:p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -65,8 +86,28 @@ export default function Navbar() {
           className="md:hidden bg-white shadow-lg absolute w-full"
         >
           <div className="px-4 pt-2 pb-6 space-y-2">
-            <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-4 h-12 flex items-center text-base font-medium border-b">Inicio</Link>
-            <Link to="/menu" onClick={() => setIsMenuOpen(false)} className="block px-4 h-12 flex items-center text-base font-medium border-b">Menú</Link>
+            <Link 
+              to="/" 
+              onClick={() => setIsMenuOpen(false)} 
+              className={`block px-4 h-12 flex items-center text-base font-medium border-b transition-all ${
+                isActive('/') 
+                  ? 'text-black font-bold border-gray-400 bg-gray-50' 
+                  : 'text-gray-600 border-gray-100 hover:text-black'
+              }`}
+            >
+              Inicio
+            </Link>
+            <Link 
+              to="/menu" 
+              onClick={() => setIsMenuOpen(false)} 
+              className={`block px-4 h-12 flex items-center text-base font-medium border-b transition-all ${
+                isActive('/menu') 
+                  ? 'text-black font-bold border-gray-400 bg-gray-50' 
+                  : 'text-gray-600 border-gray-100 hover:text-black'
+              }`}
+            >
+              Menú
+            </Link>
           </div>
         </motion.div>
       )}
