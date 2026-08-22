@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { FiMinus, FiPlus, FiSearch } from 'react-icons/fi';
 
@@ -70,7 +70,7 @@ export default function MenuPage() {
         setCategories(catsRes.data);
         setProducts(prodsRes.data);
         if (catsRes.data.length > 0) {
-          setActiveCategory('all');
+          setActiveCategory(catsRes.data[0].id);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -82,9 +82,11 @@ export default function MenuPage() {
   }, []);
 
   const filteredProducts = products.filter(p => {
-    const matchCategory = activeCategory === 'all' || p.category_id === activeCategory;
-    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         (p.description && p.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    // Sin categoría "Todos", una búsqueda activa se aplica a todo el menú
+    // en vez de quedar limitada a la categoría seleccionada.
+    const matchCategory = searchTerm.trim() !== '' || p.category_id === activeCategory;
     return matchCategory && matchSearch && p.is_available;
   });
 
@@ -111,12 +113,6 @@ export default function MenuPage() {
           </div>
           
           <div className="flex gap-2 overflow-x-auto w-full md:w-auto pt-2 pb-3 px-1 scrollbar-hide">
-            <button 
-              onClick={() => setActiveCategory('all')}
-              className={`px-6 py-2 rounded-full whitespace-nowrap font-semibold text-sm transition-all ${activeCategory === 'all' ? 'bg-dark text-white' : 'bg-white text-dark hover:bg-gray-100'}`}
-            >
-              Todos
-            </button>
             {categories.map(cat => {
               if (cat.is_highlighted) {
                 const isActive = activeCategory === cat.id;
@@ -155,11 +151,9 @@ export default function MenuPage() {
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
-          <motion.div 
-            layout
+          <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence>
               {filteredProducts.length === 0 ? (
                 <div className="col-span-full text-center py-20 text-gray-500">
                   No se encontraron productos.
@@ -167,10 +161,8 @@ export default function MenuPage() {
               ) : (
                 filteredProducts.map(product => (
                   <motion.div
-                    layout
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
                     key={product.id}
                     className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group flex flex-col"
@@ -212,32 +204,30 @@ export default function MenuPage() {
                   </motion.div>
                 ))
               )}
-            </AnimatePresence>
-          </motion.div>
+          </div>
         )}
       </div>
 
       {/* Modal de Observaciones: en un portal porque el <main> (animado con
           framer-motion) queda con un transform activo, lo que lo vuelve
           "containing block" de los elementos fixed y rompe este overlay.
-          AnimatePresence va DENTRO del portal: no puede envolverlo desde
-          afuera porque un ReactPortal no es un elemento normal que pueda
-          clonar para la animación de salida. */}
+          Sin AnimatePresence/exit: en esta versión de framer-motion, la
+          animación de salida a veces termina pero nunca dispara el
+          desmontaje real (el elemento queda invisible pero interceptando
+          clics) — se confirmó también en el build de producción. Se deja
+          solo la animación de entrada, que sí funciona de forma confiable. */}
       {createPortal(
-        <AnimatePresence>
-          {selectedProduct && (
+          selectedProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-4 overflow-y-auto">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black"
               onClick={() => setSelectedProduct(null)}
             ></motion.div>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              exit={{ opacity: 0, scale: 0.95 }}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto relative z-10 shadow-2xl my-auto"
             >
               <h3 className="text-3xl font-bebas text-dark mb-2">Añadir al Carrito</h3>
@@ -311,8 +301,7 @@ export default function MenuPage() {
               </div>
             </motion.div>
           </div>
-          )}
-        </AnimatePresence>,
+          ),
         document.body
       )}
     </div>
