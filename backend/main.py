@@ -1,7 +1,11 @@
 import os
+import time
 import uuid
+import json
+from collections import defaultdict
 from typing import List
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
+from dotenv import dotenv_values
+from fastapi import FastAPI, Depends, HTTPException, Request, status, UploadFile, File, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -24,11 +28,17 @@ with engine.begin() as connection:
     if "order" not in columns:
         connection.execute(text('ALTER TABLE products ADD COLUMN "order" INTEGER DEFAULT 0'))
 
+    option_columns = [row[1] for row in connection.execute(text("PRAGMA table_info(product_options)"))]
+    if option_columns and "price" not in option_columns and "price_adjustment" in option_columns:
+        connection.execute(text('ALTER TABLE product_options RENAME COLUMN price_adjustment TO price'))
+
 app = FastAPI(title="The Burgery API")
 
+_cors_setting = os.getenv("CORS_ORIGINS") or dotenv_values().get("CORS_ORIGINS") or "http://localhost:5173,http://localhost:3000"
+cors_origins = [origin.strip() for origin in _cors_setting.split(",") if origin.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -38,8 +48,24 @@ os.makedirs("uploads", exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 image_service = ImageService(upload_dir="uploads")
 
+LOGIN_RATE_LIMIT = 5
+LOGIN_RATE_WINDOW_SECONDS = 5 * 60
+_login_attempts = defaultdict(list)
+
+def enforce_login_rate_limit(client_ip: str):
+    now = time.time()
+    attempts = [t for t in _login_attempts[client_ip] if now - t < LOGIN_RATE_WINDOW_SECONDS]
+    if len(attempts) >= LOGIN_RATE_LIMIT:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Demasiados intentos de inicio de sesión. Inténtalo de nuevo en unos minutos."
+        )
+    attempts.append(now)
+    _login_attempts[client_ip] = attempts
+
 @app.post("/api/auth/login", response_model=schemas.Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    enforce_login_rate_limit(request.client.host)
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
@@ -91,6 +117,16 @@ def delete_category(category_id: int, db: Session = Depends(get_db), current_use
     db.commit()
     return {"ok": True}
 
+def parse_product_options(options_json: str) -> List[schemas.ProductOptionCreate]:
+    try:
+        raw_options = json.loads(options_json)
+    except (TypeError, ValueError) as error:
+        raise HTTPException(status_code=422, detail="El formato de las opciones no es válido.") from error
+    try:
+        return [schemas.ProductOptionCreate(**option) for option in raw_options]
+    except Exception as error:
+        raise HTTPException(status_code=422, detail="Una de las opciones tiene datos inválidos.") from error
+
 # --- Products ---
 @app.get("/api/products", response_model=List[schemas.Product])
 def get_products(db: Session = Depends(get_db)):
@@ -105,12 +141,14 @@ def create_product(
     order: int = Form(0),
     is_featured: bool = Form(False),
     is_available: bool = Form(True),
+    options: str = Form("[]"),
     image: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
     if not db.query(models.Category).filter(models.Category.id == category_id, models.Category.deleted_at == None).first():
         raise HTTPException(status_code=422, detail="Selecciona una categoría válida.")
+    parsed_options = parse_product_options(options)
     image_url = None
     if image:
         # Use ImageService to validate, optimize and save the uploaded image.
@@ -128,6 +166,12 @@ def create_product(
     )
     try:
         db.add(db_product)
+        db.commit()
+        db.refresh(db_product)
+        db_product.options = [
+            models.ProductOption(name=o.name, price=o.price, order=o.order)
+            for o in parsed_options
+        ]
         db.commit()
         db.refresh(db_product)
         return db_product
@@ -150,6 +194,7 @@ def update_product(
     order: int = Form(0),
     is_featured: bool = Form(False),
     is_available: bool = Form(True),
+    options: str = Form("[]"),
     image: UploadFile = File(None),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.get_current_user)
@@ -159,6 +204,7 @@ def update_product(
         raise HTTPException(status_code=404, detail="Product not found")
     if not db.query(models.Category).filter(models.Category.id == category_id, models.Category.deleted_at == None).first():
         raise HTTPException(status_code=422, detail="Selecciona una categoría válida.")
+    parsed_options = parse_product_options(options)
 
     if image:
         # Replace existing image via ImageService
@@ -171,6 +217,10 @@ def update_product(
     db_product.is_featured = is_featured
     db_product.is_available = is_available
     db_product.order = order
+    db_product.options = [
+        models.ProductOption(name=o.name, price=o.price, order=o.order)
+        for o in parsed_options
+    ]
 
     db.commit()
     db.refresh(db_product)

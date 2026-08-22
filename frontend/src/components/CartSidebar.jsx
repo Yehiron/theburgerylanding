@@ -41,6 +41,9 @@ export default function CartSidebar() {
     
     cart.forEach(item => {
       lines.push(`• ${item.quantity}x ${item.name} ($${money.format(item.price * item.quantity)})`);
+      if (item.optionName) {
+        lines.push(`   ↳ 🥤 *Opción:* ${item.optionName}`);
+      }
       if (item.notes && item.notes.trim() !== "") {
         lines.push(`   ↳ 📝 *Nota:* ${item.notes.trim()}`);
       }
@@ -129,6 +132,7 @@ export default function CartSidebar() {
                       <h3 className="font-bold text-sm">
                         {isCheckout ? `${item.quantity}x ` : ''}{item.name}
                       </h3>
+                      {item.optionName && <p className="text-xs text-gray-500 mt-1">Opción: <span className="font-medium">{item.optionName}</span></p>}
                       {item.notes && <p className="text-xs text-gray-500 italic mt-1">{item.notes}</p>}
                       <p className="text-gray-500 font-semibold mt-1">
                         {isCheckout 

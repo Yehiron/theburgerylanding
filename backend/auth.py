@@ -1,6 +1,7 @@
 import os
 from datetime import datetime, timedelta
 from typing import Optional
+from dotenv import dotenv_values
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
@@ -9,7 +10,13 @@ from sqlalchemy.orm import Session
 from database import get_db
 import models
 
-SECRET_KEY = os.getenv("JWT_SECRET", "55a20ccd32c5b7955ef08abe4ba15cefcb153e6558607d9ef5821bc2ba66dc2f")
+# Reads only JWT_SECRET from .env without touching the rest of os.environ,
+# so it can't accidentally override other settings (e.g. DATABASE_URL) read elsewhere.
+SECRET_KEY = os.getenv("JWT_SECRET") or dotenv_values().get("JWT_SECRET")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "JWT_SECRET no está configurado. Define esta variable de entorno (ver backend/.env.example) antes de iniciar el servidor."
+    )
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 1 week
 
