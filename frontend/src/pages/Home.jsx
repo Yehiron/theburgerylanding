@@ -140,7 +140,7 @@ export default function Home() {
                 ))}
               </motion.div>
               <motion.div variants={premiumItem} className="flex justify-center md:justify-start">
-                <motion.a href="https://wa.me/573248450908" target="_blank" rel="noreferrer" className="inline-block rounded-full border border-white/60 bg-black/20 px-8 py-4 text-sm font-bold tracking-widest text-white shadow-[0_0_20px_rgba(255,255,255,0.06)] transition-all duration-300 hover:border-white hover:bg-white hover:text-dark hover:shadow-[0_8px_28px_rgba(0,0,0,0.28)]" whileHover={shouldReduceMotion ? undefined : { y: -2 }} whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }} transition={{ duration: 0.3 }}>
+                <motion.a href="https://wa.me/573008641475" target="_blank" rel="noreferrer" className="inline-block rounded-full border border-white/60 bg-black/20 px-8 py-4 text-sm font-bold tracking-widest text-white shadow-[0_0_20px_rgba(255,255,255,0.06)] transition-all duration-300 hover:border-white hover:bg-white hover:text-dark hover:shadow-[0_8px_28px_rgba(0,0,0,0.28)]" whileHover={shouldReduceMotion ? undefined : { y: -2 }} whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }} transition={{ duration: 0.3 }}>
                   QUIERO COTIZAR MI EVENTO
                 </motion.a>
               </motion.div>
@@ -207,7 +207,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="mt-auto pt-10">
-                <a href="https://wa.me/573248450908" target="_blank" rel="noreferrer" className="inline-flex w-full items-center justify-center rounded-full bg-black px-6 py-4 text-sm font-bold uppercase tracking-widest text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-[0_10px_24px_rgba(0,0,0,0.2)] sm:w-auto">
+                <a href="https://wa.me/573008641475" target="_blank" rel="noreferrer" className="inline-flex w-full items-center justify-center rounded-full bg-black px-6 py-4 text-sm font-bold uppercase tracking-widest text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-800 hover:shadow-[0_10px_24px_rgba(0,0,0,0.2)] sm:w-auto">
                   Contáctanos
                 </a>
               </div>

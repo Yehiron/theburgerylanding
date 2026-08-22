@@ -68,12 +68,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="https://wa.me/573248450908" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white text-sm font-medium transition-colors duration-300 block py-1 md:py-0">
+                <a href="https://wa.me/573008641475" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white text-sm font-medium transition-colors duration-300 block py-1 md:py-0">
                   Eventos y Catering
                 </a>
               </li>
               <li>
-                <a href="https://wa.me/573248450908" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white text-sm font-medium transition-colors duration-300 block py-1 md:py-0">
+                <a href="https://wa.me/573008641475" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-white text-sm font-medium transition-colors duration-300 block py-1 md:py-0">
                   Contacto
                 </a>
               </li>
@@ -96,13 +96,13 @@ export default function Footer() {
               </a>
               
               <a 
-                href="https://wa.me/573248450908" 
-                target="_blank" 
-                rel="noreferrer" 
+                href="https://wa.me/573008641475"
+                target="_blank"
+                rel="noreferrer"
                 className="flex items-center justify-center md:justify-start gap-3 group text-gray-400 hover:text-white text-sm transition-colors duration-300 py-1"
               >
                 <FiPhone className="text-gray-500 group-hover:text-white transition-colors shrink-0" size={18} />
-                <span>+57 324 845 0908</span>
+                <span>+57 300 864 1475</span>
               </a>
               
               <div className="flex items-center justify-center md:justify-start gap-3 text-gray-400 text-sm py-1">
