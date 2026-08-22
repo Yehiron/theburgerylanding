@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiChevronUp, FiEdit2, FiLoader, FiPlus, FiSearch, FiTrash2, FiX } from 'react-icons/fi';
@@ -58,6 +58,11 @@ export default function Dashboard() {
   const { register: regCat, handleSubmit: submitCat, reset: resetCat, setValue: setCategoryValue, formState: { errors: categoryErrors } } = useForm({ defaultValues: { name: '', order: 0, is_highlighted: false } });
   const { register: regProd, handleSubmit: submitProd, reset: resetProd, control: productControl, setValue: setProductValue, formState: { errors: productErrors } } = useForm({ defaultValues: emptyProduct });
   const { fields: optionFields, append: appendOption, remove: removeOption } = useFieldArray({ control: productControl, name: 'options' });
+  const { ref: imageFieldRef, ...imageFieldProps } = regProd('image');
+  const imageInputRef = useRef(null);
+  const clearImageInput = () => {
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  };
 
   const showNotice = (type, text) => {
     setNotice({ type, text });
@@ -84,6 +89,7 @@ export default function Dashboard() {
     setEditingProduct(null);
     setImageError('');
     setImagePreview('');
+    clearImageInput();
   };
 
   const onSaveCategory = async (data) => {
@@ -172,6 +178,7 @@ export default function Dashboard() {
     resetProd({ ...emptyProduct, ...product, category_id: String(product.category_id) });
     setImageError('');
     setImagePreview(product.image_url ? `${API_URL}${product.image_url}` : '');
+    clearImageInput();
     setActiveTab('products');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -238,7 +245,7 @@ export default function Dashboard() {
             <div><label className="block text-sm font-semibold mb-1">Descripción</label><textarea {...regProd('description')} className={inputClass} rows="2" /></div>
             <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-semibold mb-1">Precio ($)</label><input type="number" min="0" step="1" {...regProd('price', { required: 'El precio es obligatorio.', valueAsNumber: true, min: { value: 0, message: 'El precio no puede ser negativo.' } })} className={inputClass} />{productErrors.price && <p className="text-red-600 text-xs mt-1">{productErrors.price.message}</p>}</div><div><label className="block text-sm font-semibold mb-1">Categoría</label><select {...regProd('category_id', { required: 'Selecciona una categoría.' })} className={inputClass}><option value="">Selecciona...</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>{productErrors.category_id && <p className="text-red-600 text-xs mt-1">{productErrors.category_id.message}</p>}</div></div>
             <div><label className="block text-sm font-semibold mb-1">Orden de aparición</label><input type="number" min="0" {...regProd('order', { valueAsNumber: true, min: { value: 0, message: 'El orden no puede ser negativo.' } })} className={inputClass} /><p className="text-xs text-gray-500 mt-1">Los números menores aparecen primero.</p></div>
-            <div><label className="block text-sm font-semibold mb-1">Imagen {editingProduct && '(opcional)'}</label><input type="file" accept="image/jpeg,image/png,image/webp" {...regProd('image')} onChange={handleImageChange} className={inputClass} />{imageError && <p className="text-red-600 text-xs mt-1">{imageError}</p>}{imagePreview && <img src={imagePreview} alt="Vista previa" className="mt-3 h-36 w-full rounded-lg object-cover" />}</div>
+            <div><label className="block text-sm font-semibold mb-1">Imagen {editingProduct && '(opcional)'}</label><input type="file" accept="image/jpeg,image/png,image/webp" {...imageFieldProps} ref={(el) => { imageFieldRef(el); imageInputRef.current = el; }} onChange={handleImageChange} className={inputClass} />{imageError && <p className="text-red-600 text-xs mt-1">{imageError}</p>}{imagePreview && <img src={imagePreview} alt="Vista previa" className="mt-3 h-36 w-full rounded-lg object-cover" />}</div>
             <div>
               <label className="block text-sm font-semibold mb-1">Opciones (ej. sabores, tamaños)</label>
               <p className="text-xs text-gray-500 mb-2">Si agregas opciones, el cliente deberá elegir una al agregar el producto al carrito, y se cobrará el precio de la opción elegida (el "Precio ($)" de arriba ya no se suma; solo se usa si el producto no tiene opciones). Déjalo vacío si el producto no las necesita.</p>
