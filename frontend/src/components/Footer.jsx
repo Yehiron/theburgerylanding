@@ -46,7 +46,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
-              Hamburguesas premium preparadas con ingredientes de la más alta calidad y un pan brioche horneado a diario. No hacemos comida rápida; creamos experiencias memorables.
+              Burgers premium preparadas con ingredientes de la más alta calidad y un pan brioche horneado a diario. creamos experiencias memorables.
             </p>
             <p className="text-gray-500 font-bebas tracking-widest text-xs uppercase pt-2">
               EAT · SMILE · REPEAT
