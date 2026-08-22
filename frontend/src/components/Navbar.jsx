@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiMenu, FiX } from 'react-icons/fi';
@@ -78,38 +79,48 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-white shadow-lg absolute w-full"
-        >
+      {/* Mobile Menu: rendered in a portal so its backdrop can cover the full
+          viewport — the navbar's `glass` backdrop-blur makes it a containing
+          block for `fixed` descendants, which would otherwise trap the
+          backdrop inside the navbar's own height. */}
+      {isMenuOpen && createPortal(
+        <>
+          <div
+            className="md:hidden fixed inset-0 z-40"
+            onClick={() => setIsMenuOpen(false)}
+          ></div>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden bg-white shadow-lg fixed top-20 inset-x-0 z-50"
+          >
           <div className="px-4 pt-2 pb-6 space-y-2">
-            <Link 
-              to="/" 
-              onClick={() => setIsMenuOpen(false)} 
+            <Link
+              to="/"
+              onClick={() => setIsMenuOpen(false)}
               className={`block px-4 h-12 flex items-center text-base font-medium border-b transition-all ${
-                isActive('/') 
-                  ? 'text-black font-bold border-gray-400 bg-gray-50' 
+                isActive('/')
+                  ? 'text-black font-bold border-gray-400 bg-gray-50'
                   : 'text-gray-600 border-gray-100 hover:text-black'
               }`}
             >
               Inicio
             </Link>
-            <Link 
-              to="/menu" 
-              onClick={() => setIsMenuOpen(false)} 
+            <Link
+              to="/menu"
+              onClick={() => setIsMenuOpen(false)}
               className={`block px-4 h-12 flex items-center text-base font-medium border-b transition-all ${
-                isActive('/menu') 
-                  ? 'text-black font-bold border-gray-400 bg-gray-50' 
+                isActive('/menu')
+                  ? 'text-black font-bold border-gray-400 bg-gray-50'
                   : 'text-gray-600 border-gray-100 hover:text-black'
               }`}
             >
               Menú
             </Link>
           </div>
-        </motion.div>
+          </motion.div>
+        </>,
+        document.body
       )}
     </nav>
   );
