@@ -13,7 +13,7 @@ export default function CartSidebar() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState('delivery');
-  const PHONE_NUMBER = "573248450908"; // Código país Colombia temporal
+  const PHONE_NUMBER = "573008641475"; // Código país Colombia
 
   const closeCart = () => {
     setIsCartOpen(false);
