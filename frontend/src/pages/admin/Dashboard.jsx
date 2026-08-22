@@ -55,7 +55,7 @@ export default function Dashboard() {
     return sortDirection === 'asc' ? <FiChevronUp className="inline" /> : <FiChevronDown className="inline" />;
   };
 
-  const { register: regCat, handleSubmit: submitCat, reset: resetCat, setValue: setCategoryValue, formState: { errors: categoryErrors } } = useForm({ defaultValues: { name: '', order: 0 } });
+  const { register: regCat, handleSubmit: submitCat, reset: resetCat, setValue: setCategoryValue, formState: { errors: categoryErrors } } = useForm({ defaultValues: { name: '', order: 0, is_highlighted: false } });
   const { register: regProd, handleSubmit: submitProd, reset: resetProd, control: productControl, setValue: setProductValue, formState: { errors: productErrors } } = useForm({ defaultValues: emptyProduct });
   const { fields: optionFields, append: appendOption, remove: removeOption } = useFieldArray({ control: productControl, name: 'options' });
 
@@ -96,7 +96,7 @@ export default function Dashboard() {
         await axios.post(`${API_URL}/api/categories`, data, { headers });
         showNotice('success', 'Categoría creada correctamente.');
       }
-      resetCat({ name: '', order: 0 });
+      resetCat({ name: '', order: 0, is_highlighted: false });
       setEditingCategory(null);
       await fetchData();
     } catch (error) {
@@ -108,6 +108,7 @@ export default function Dashboard() {
     setEditingCategory(category);
     setCategoryValue('name', category.name);
     setCategoryValue('order', category.order);
+    setCategoryValue('is_highlighted', Boolean(category.is_highlighted));
   };
 
   const onDeleteCategory = async (id) => {
@@ -220,11 +221,12 @@ export default function Dashboard() {
           <form onSubmit={submitCat(onSaveCategory)} className="space-y-4">
             <div><label className="block text-sm font-semibold mb-1">Nombre</label><input {...regCat('name', { required: 'El nombre es obligatorio.' })} className={inputClass} />{categoryErrors.name && <p className="text-red-600 text-xs mt-1">{categoryErrors.name.message}</p>}</div>
             <div><label className="block text-sm font-semibold mb-1">Orden</label><input type="number" min="0" {...regCat('order', { valueAsNumber: true, min: { value: 0, message: 'El orden no puede ser negativo.' } })} className={inputClass} />{categoryErrors.order && <p className="text-red-600 text-xs mt-1">{categoryErrors.order.message}</p>}</div>
-            <div className="flex gap-2"><button disabled={isSaving} type="submit" className="flex-1 bg-dark text-white py-3 rounded-lg font-bold flex justify-center items-center gap-2 disabled:opacity-60">{isSaving ? <FiLoader className="animate-spin" /> : <FiPlus />}{editingCategory ? 'Guardar cambios' : 'Crear Categoría'}</button>{editingCategory && <button type="button" onClick={() => { setEditingCategory(null); resetCat({ name: '', order: 0 }); }} className="px-4 border rounded-lg"><FiX /></button>}</div>
+            <label className="flex items-center gap-2"><input type="checkbox" {...regCat('is_highlighted')} /> <span className="text-sm">Destacada (botón dorado animado en el menú)</span></label>
+            <div className="flex gap-2"><button disabled={isSaving} type="submit" className="flex-1 bg-dark text-white py-3 rounded-lg font-bold flex justify-center items-center gap-2 disabled:opacity-60">{isSaving ? <FiLoader className="animate-spin" /> : <FiPlus />}{editingCategory ? 'Guardar cambios' : 'Crear Categoría'}</button>{editingCategory && <button type="button" onClick={() => { setEditingCategory(null); resetCat({ name: '', order: 0, is_highlighted: false }); }} className="px-4 border rounded-lg"><FiX /></button>}</div>
           </form>
         </div>
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border overflow-x-auto">
-          <h2 className="text-xl font-bold mb-4">Lista de Categorías</h2><table className="w-full text-left"><thead className="bg-gray-50 border-b"><tr><th className="p-4">Nombre</th><th className="p-4">Orden</th><th className="p-4 text-right">Acciones</th></tr></thead><tbody>{categories.map((c) => <tr key={c.id} className="border-b"><td className="p-4 font-medium">{c.name}</td><td className="p-4">{c.order}</td><td className="p-4 text-right"><button title="Editar" onClick={() => editCategory(c)} className="text-blue-600 p-2"><FiEdit2 /></button><button title="Eliminar" onClick={() => onDeleteCategory(c.id)} className="text-red-500 p-2"><FiTrash2 /></button></td></tr>)}{!categories.length && <tr><td colSpan="3" className="p-4 text-center text-gray-500">No hay categorías</td></tr>}</tbody></table>
+          <h2 className="text-xl font-bold mb-4">Lista de Categorías</h2><table className="w-full text-left"><thead className="bg-gray-50 border-b"><tr><th className="p-4">Nombre</th><th className="p-4">Orden</th><th className="p-4">Destacada</th><th className="p-4 text-right">Acciones</th></tr></thead><tbody>{categories.map((c) => <tr key={c.id} className="border-b"><td className="p-4 font-medium">{c.name}</td><td className="p-4">{c.order}</td><td className="p-4">{c.is_highlighted ? <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700">Destacada</span> : <span className="text-gray-400 text-xs">—</span>}</td><td className="p-4 text-right"><button title="Editar" onClick={() => editCategory(c)} className="text-blue-600 p-2"><FiEdit2 /></button><button title="Eliminar" onClick={() => onDeleteCategory(c.id)} className="text-red-500 p-2"><FiTrash2 /></button></td></tr>)}{!categories.length && <tr><td colSpan="4" className="p-4 text-center text-gray-500">No hay categorías</td></tr>}</tbody></table>
         </div>
       </div>}
 

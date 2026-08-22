@@ -110,8 +110,7 @@ export default function MenuPage() {
               Todos
             </button>
             {categories.map(cat => {
-              const isBurgerMaster = cat.name.toLowerCase().replace(/\s+/g, '') === 'burgermaster';
-              if (isBurgerMaster) {
+              if (cat.is_highlighted) {
                 const isActive = activeCategory === cat.id;
                 return (
                   <button 

@@ -32,6 +32,15 @@ with engine.begin() as connection:
     if option_columns and "price" not in option_columns and "price_adjustment" in option_columns:
         connection.execute(text('ALTER TABLE product_options RENAME COLUMN price_adjustment TO price'))
 
+    category_columns = [row[1] for row in connection.execute(text("PRAGMA table_info(categories)"))]
+    if category_columns and "is_highlighted" not in category_columns:
+        connection.execute(text('ALTER TABLE categories ADD COLUMN is_highlighted BOOLEAN DEFAULT 0'))
+        # Preserva el estilo dorado que antes se activaba comparando el nombre de la categoría.
+        connection.execute(text(
+            "UPDATE categories SET is_highlighted = 1 "
+            "WHERE LOWER(REPLACE(name, ' ', '')) = 'burgermaster'"
+        ))
+
 app = FastAPI(title="The Burgery API")
 
 _cors_setting = os.getenv("CORS_ORIGINS") or dotenv_values().get("CORS_ORIGINS") or "http://localhost:5173,http://localhost:3000"
