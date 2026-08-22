@@ -39,3 +39,16 @@ class Product(Base):
     deleted_at = Column(DateTime, nullable=True)
 
     category = relationship("Category", back_populates="products")
+    options = relationship("ProductOption", back_populates="product", cascade="all, delete-orphan", order_by="ProductOption.order")
+
+class ProductOption(Base):
+    __tablename__ = "product_options"
+    id = Column(Integer, primary_key=True, index=True)
+    product_id = Column(Integer, ForeignKey("products.id"))
+    name = Column(String)
+    price = Column(Float, default=0)
+    order = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    product = relationship("Product", back_populates="options")

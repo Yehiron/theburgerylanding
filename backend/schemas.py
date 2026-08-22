@@ -32,6 +32,18 @@ class Category(CategoryBase):
     created_at: datetime.datetime
     model_config = ConfigDict(from_attributes=True)
 
+class ProductOptionBase(BaseModel):
+    name: str
+    price: Optional[float] = 0
+    order: Optional[int] = 0
+
+class ProductOptionCreate(ProductOptionBase):
+    pass
+
+class ProductOption(ProductOptionBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)
+
 class ProductBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -48,4 +60,5 @@ class Product(ProductBase):
     id: int
     image_url: Optional[str] = None
     created_at: datetime.datetime
+    options: List[ProductOption] = []
     model_config = ConfigDict(from_attributes=True)

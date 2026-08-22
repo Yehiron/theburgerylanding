@@ -7,6 +7,13 @@ import { FiPlus, FiSearch } from 'react-icons/fi';
 const API_URL = import.meta.env.VITE_API_URL || "";
 const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
+const getDisplayPrice = (product) => {
+  if (product.options?.length > 0) {
+    return Math.min(...product.options.map((o) => o.price));
+  }
+  return product.price;
+};
+
 export default function MenuPage() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -15,19 +22,22 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productNotes, setProductNotes] = useState('');
+  const [selectedOption, setSelectedOption] = useState(null);
   const notesInputRef = useRef(null);
   const { addToCart } = useCart();
 
   const handleAddToCartClick = (product) => {
     setSelectedProduct(product);
     setProductNotes('');
+    setSelectedOption(product.options?.length > 0 ? product.options[0] : null);
   };
 
   const confirmAddToCart = () => {
     if (selectedProduct) {
-      addToCart(selectedProduct, productNotes);
+      addToCart(selectedProduct, productNotes, selectedOption);
       setSelectedProduct(null);
       setProductNotes('');
+      setSelectedOption(null);
     }
   };
 
@@ -178,7 +188,10 @@ export default function MenuPage() {
                     <div className="p-6 flex-1 flex flex-col">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-2xl font-bold text-dark">{product.name}</h3>
-                        <span className="text-xl font-bebas text-gray-500">${money.format(product.price)}</span>
+                        <span className="text-xl font-bebas text-gray-500">
+                          {product.options?.length > 0 && <span className="text-xs align-top mr-1">Desde</span>}
+                          ${money.format(getDisplayPrice(product))}
+                        </span>
                       </div>
                       <p className="text-gray-500 text-sm mb-6 flex-1 line-clamp-3">{product.description}</p>
                       
@@ -215,13 +228,37 @@ export default function MenuPage() {
               className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full max-h-[calc(100dvh-2rem)] overflow-y-auto relative z-10 shadow-2xl my-auto"
             >
               <h3 className="text-3xl font-bebas text-dark mb-2">Añadir al Carrito</h3>
+
+              {selectedProduct.options?.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-gray-500 mb-3">Elige una opción para <strong>{selectedProduct.name}</strong>:</p>
+                  <div className="space-y-2">
+                    {selectedProduct.options.map((option) => (
+                      <label key={option.id} className="flex items-center justify-between gap-3 p-3 border rounded-xl cursor-pointer has-[:checked]:border-black has-[:checked]:bg-gray-50">
+                        <span className="flex items-center gap-3">
+                          <input
+                            type="radio"
+                            name="product-option"
+                            checked={selectedOption?.id === option.id}
+                            onChange={() => setSelectedOption(option)}
+                            className="accent-black"
+                          />
+                          {option.name}
+                        </span>
+                        <span className="text-sm text-gray-500">${money.format(option.price)}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <p className="text-gray-500 mb-6">¿Deseas agregar alguna observación para <strong>{selectedProduct.name}</strong>?</p>
-              
-              <textarea 
+
+              <textarea
                 ref={notesInputRef}
                 className="w-full p-4 border rounded-xl text-base md:text-sm focus:ring-black focus:border-black outline-none mb-6"
                 rows="3"
-                placeholder="Ej. Sin cebolla, extra salsa..."
+                placeholder={selectedProduct.options?.length > 0 ? 'Ej. Bien fría, con poco hielo...' : 'Ej. Sin cebolla, sin lechuga...'}
                 value={productNotes}
                 onChange={(e) => setProductNotes(e.target.value)}
               ></textarea>
