@@ -37,6 +37,8 @@ backend/database/
 backend/uploads/*
 !backend/uploads/.gitkeep
 
+backups/
+
 
 node_modules/
 dist/
