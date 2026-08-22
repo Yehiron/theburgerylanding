@@ -23,6 +23,7 @@ class TokenData(BaseModel):
 class CategoryBase(BaseModel):
     name: str
     order: Optional[int] = 0
+    is_highlighted: Optional[bool] = False
 
 class CategoryCreate(CategoryBase):
     pass
