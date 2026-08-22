@@ -13,16 +13,16 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product, notes = '', option = null) => {
+  const addToCart = (product, notes = '', option = null, quantity = 1) => {
     const optionId = option?.id ?? null;
     const matchesLine = (item) => item.id === product.id && item.notes === notes && item.optionId === optionId;
     setCart((prev) => {
       const existing = prev.find(matchesLine);
       if (existing) {
-        return prev.map(item => matchesLine(item) ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => matchesLine(item) ? { ...item, quantity: item.quantity + quantity } : item);
       }
       const price = option ? option.price : product.price;
-      return [...prev, { ...product, price, quantity: 1, notes, optionId, optionName: option?.name || null, cartItemId: Date.now() + Math.random().toString(36).substring(2, 9) }];
+      return [...prev, { ...product, price, quantity, notes, optionId, optionName: option?.name || null, cartItemId: Date.now() + Math.random().toString(36).substring(2, 9) }];
     });
   };
 

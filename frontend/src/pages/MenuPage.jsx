@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../context/CartContext';
-import { FiPlus, FiSearch } from 'react-icons/fi';
+import { FiMinus, FiPlus, FiSearch } from 'react-icons/fi';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
@@ -22,23 +23,41 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [productNotes, setProductNotes] = useState('');
-  const [selectedOption, setSelectedOption] = useState(null);
-  const notesInputRef = useRef(null);
+  const [optionQuantities, setOptionQuantities] = useState({});
   const { addToCart } = useCart();
+
+  const hasOptions = selectedProduct?.options?.length > 0;
+  const totalOptionQuantity = Object.values(optionQuantities).reduce((sum, qty) => sum + qty, 0);
+  const totalOptionPrice = hasOptions
+    ? selectedProduct.options.reduce((sum, o) => sum + (optionQuantities[o.id] || 0) * o.price, 0)
+    : 0;
 
   const handleAddToCartClick = (product) => {
     setSelectedProduct(product);
     setProductNotes('');
-    setSelectedOption(product.options?.length > 0 ? product.options[0] : null);
+    setOptionQuantities({});
+  };
+
+  const changeOptionQuantity = (optionId, delta) => {
+    setOptionQuantities((prev) => {
+      const next = Math.max(0, (prev[optionId] || 0) + delta);
+      return { ...prev, [optionId]: next };
+    });
   };
 
   const confirmAddToCart = () => {
-    if (selectedProduct) {
-      addToCart(selectedProduct, productNotes, selectedOption);
-      setSelectedProduct(null);
-      setProductNotes('');
-      setSelectedOption(null);
+    if (!selectedProduct) return;
+    if (hasOptions) {
+      selectedProduct.options.forEach((option) => {
+        const qty = optionQuantities[option.id] || 0;
+        if (qty > 0) addToCart(selectedProduct, '', option, qty);
+      });
+    } else {
+      addToCart(selectedProduct, productNotes);
     }
+    setSelectedProduct(null);
+    setProductNotes('');
+    setOptionQuantities({});
   };
 
   useEffect(() => {
@@ -61,17 +80,6 @@ export default function MenuPage() {
     };
     fetchData();
   }, []);
-
-  useEffect(() => {
-    if (!selectedProduct) return;
-
-    const focusNotes = window.requestAnimationFrame(() => {
-      notesInputRef.current?.focus({ preventScroll: true });
-      notesInputRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    });
-
-    return () => window.cancelAnimationFrame(focusNotes);
-  }, [selectedProduct]);
 
   const filteredProducts = products.filter(p => {
     const matchCategory = activeCategory === 'all' || p.category_id === activeCategory;
@@ -209,13 +217,19 @@ export default function MenuPage() {
         )}
       </div>
 
-      {/* Modal de Observaciones */}
-      <AnimatePresence>
-        {selectedProduct && (
+      {/* Modal de Observaciones: en un portal porque el <main> (animado con
+          framer-motion) queda con un transform activo, lo que lo vuelve
+          "containing block" de los elementos fixed y rompe este overlay.
+          AnimatePresence va DENTRO del portal: no puede envolverlo desde
+          afuera porque un ReactPortal no es un elemento normal que pueda
+          clonar para la animación de salida. */}
+      {createPortal(
+        <AnimatePresence>
+          {selectedProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-4 overflow-y-auto">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 0.5 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.5 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-black"
               onClick={() => setSelectedProduct(null)}
@@ -228,58 +242,79 @@ export default function MenuPage() {
             >
               <h3 className="text-3xl font-bebas text-dark mb-2">Añadir al Carrito</h3>
 
-              {selectedProduct.options?.length > 0 && (
+              {hasOptions ? (
                 <div className="mb-6">
-                  <p className="text-gray-500 mb-3">Elige una opción para <strong>{selectedProduct.name}</strong>:</p>
+                  <p className="text-gray-500 mb-3">Elige cuántas quieres de cada sabor de <strong>{selectedProduct.name}</strong>:</p>
                   <div className="space-y-2">
-                    {selectedProduct.options.map((option) => (
-                      <label key={option.id} className="flex items-center justify-between gap-3 p-3 border rounded-xl cursor-pointer has-[:checked]:border-black has-[:checked]:bg-gray-50">
-                        <span className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="product-option"
-                            checked={selectedOption?.id === option.id}
-                            onChange={() => setSelectedOption(option)}
-                            className="accent-black"
-                          />
-                          {option.name}
-                        </span>
-                        <span className="text-sm text-gray-500">${money.format(option.price)}</span>
-                      </label>
-                    ))}
+                    {selectedProduct.options.map((option) => {
+                      const qty = optionQuantities[option.id] || 0;
+                      return (
+                        <div key={option.id} className={`flex items-center justify-between gap-3 p-3 border rounded-xl transition-colors ${qty > 0 ? 'border-black bg-gray-50' : ''}`}>
+                          <div>
+                            <div className="font-medium">{option.name}</div>
+                            <div className="text-sm text-gray-500">${money.format(option.price)}</div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => changeOptionQuantity(option.id, -1)}
+                              disabled={qty === 0}
+                              className="w-9 h-9 tap-target rounded-full border flex items-center justify-center disabled:opacity-30 hover:bg-gray-100"
+                              aria-label={`Quitar ${option.name}`}
+                            >
+                              <FiMinus />
+                            </button>
+                            <span className="w-6 text-center font-bold">{qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => changeOptionQuantity(option.id, 1)}
+                              className="w-9 h-9 tap-target rounded-full border flex items-center justify-center hover:bg-gray-100"
+                              aria-label={`Agregar ${option.name}`}
+                            >
+                              <FiPlus />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
+              ) : (
+                <>
+                  <p className="text-gray-500 mb-6">¿Deseas agregar alguna observación para <strong>{selectedProduct.name}</strong>?</p>
+                  <textarea
+                    className="w-full p-4 border rounded-xl text-base md:text-sm focus:ring-black focus:border-black outline-none mb-6"
+                    rows="3"
+                    placeholder="Ej. Sin cebolla, sin lechuga..."
+                    value={productNotes}
+                    onChange={(e) => setProductNotes(e.target.value)}
+                  ></textarea>
+                </>
               )}
 
-              <p className="text-gray-500 mb-6">¿Deseas agregar alguna observación para <strong>{selectedProduct.name}</strong>?</p>
-
-              <textarea
-                ref={notesInputRef}
-                className="w-full p-4 border rounded-xl text-base md:text-sm focus:ring-black focus:border-black outline-none mb-6"
-                rows="3"
-                placeholder={selectedProduct.options?.length > 0 ? 'Ej. Bien fría, con poco hielo...' : 'Ej. Sin cebolla, sin lechuga...'}
-                value={productNotes}
-                onChange={(e) => setProductNotes(e.target.value)}
-              ></textarea>
-              
               <div className="flex gap-4">
-                <button 
+                <button
                   onClick={() => setSelectedProduct(null)}
                   className="flex-1 py-3 bg-gray-100 text-dark font-bold rounded-xl hover:bg-gray-200 transition-colors"
                 >
                   Cancelar
                 </button>
-                <button 
+                <button
                   onClick={confirmAddToCart}
-                  className="flex-1 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                  disabled={hasOptions && totalOptionQuantity === 0}
+                  className="flex-1 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:hover:bg-black"
                 >
-                  Confirmar
+                  {hasOptions
+                    ? (totalOptionQuantity > 0 ? `Agregar ${totalOptionQuantity} · $${money.format(totalOptionPrice)}` : 'Elige al menos 1')
+                    : 'Confirmar'}
                 </button>
               </div>
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
