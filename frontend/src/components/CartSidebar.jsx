@@ -13,7 +13,16 @@ export default function CartSidebar() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState('delivery');
+  const [paymentMethod, setPaymentMethod] = useState(null);
   const PHONE_NUMBER = "573008641475"; // Código país Colombia
+  const PAYMENT_METHODS = {
+    efectivo: 'Efectivo',
+    transferencia: 'Transferencia',
+    link: 'Link de pago',
+  };
+  const canSubmitOrder = Boolean(
+    customerName && customerPhone && paymentMethod && (deliveryMethod !== 'delivery' || customerAddress)
+  );
 
   const closeCart = () => {
     setIsCartOpen(false);
@@ -21,11 +30,8 @@ export default function CartSidebar() {
   };
 
   const handleSendOrder = () => {
-    if (!customerName || !customerPhone || (deliveryMethod === 'delivery' && !customerAddress)) {
-      alert(deliveryMethod === 'delivery' ? "Por favor, completa tus datos y la dirección de entrega antes de continuar." : "Por favor, completa tus datos antes de continuar.");
-      return;
-    }
-    
+    if (!canSubmitOrder) return;
+
     const lines = [
       "🍔 *Hola The Burgery* 🍔",
       "Quiero realizar el siguiente pedido:",
@@ -35,6 +41,7 @@ export default function CartSidebar() {
       `• Teléfono: ${customerPhone}`,
       `• Modalidad: ${deliveryMethod === 'pickup' ? 'Recoger en tienda' : 'Domicilio'}`,
       ...(deliveryMethod === 'delivery' ? [`• Dirección: ${customerAddress}`, '• Envío: se confirma según la dirección.'] : []),
+      `• Pago: ${PAYMENT_METHODS[paymentMethod]}`,
       "",
       "🛒 *Pedido:*"
     ];
@@ -62,6 +69,7 @@ export default function CartSidebar() {
     setCustomerPhone('');
     setCustomerAddress('');
     setDeliveryMethod('delivery');
+    setPaymentMethod(null);
   };
 
   return (
@@ -191,6 +199,21 @@ export default function CartSidebar() {
                         <label className="block text-xs font-semibold text-gray-600 mb-1 uppercase">Dirección de entrega *</label>
                         <input type="text" className="w-full p-3 border rounded-lg text-base md:text-sm focus:ring-black focus:border-black outline-none" placeholder="Ej. Calle 123 #45-67 Apto 101" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} />
                       </div>}
+                      <div>
+                        <span className="block text-xs font-semibold text-gray-600 mb-2 uppercase">¿Cómo vas a pagar? *</span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {Object.entries(PAYMENT_METHODS).map(([value, label]) => (
+                            <button
+                              key={value}
+                              type="button"
+                              onClick={() => setPaymentMethod(value)}
+                              className={`rounded-lg border px-2 py-3 text-xs font-bold leading-tight transition-colors ${paymentMethod === value ? 'border-black bg-black text-white' : 'border-gray-300 bg-white text-gray-700'}`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </section>
                 )}
@@ -201,9 +224,18 @@ export default function CartSidebar() {
             {cart.length > 0 && (
               <div className="border-t bg-white p-4 pb-8 sm:p-6">
                 {isCheckout ? (
-                  <button onClick={handleSendOrder} className="w-full rounded-xl bg-black py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
-                    Comprar por WhatsApp
-                  </button>
+                  <>
+                    <button
+                      onClick={handleSendOrder}
+                      disabled={!canSubmitOrder}
+                      className="w-full rounded-xl bg-black py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90 disabled:opacity-40 disabled:hover:bg-opacity-100"
+                    >
+                      Comprar por WhatsApp
+                    </button>
+                    {!canSubmitOrder && (
+                      <p className="mt-2 text-center text-xs text-gray-500">Completa tus datos y el método de pago para continuar.</p>
+                    )}
+                  </>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     <button onClick={closeCart} className="rounded-xl border-2 border-black bg-white px-3 py-4 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:bg-gray-100">
