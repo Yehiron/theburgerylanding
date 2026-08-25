@@ -44,3 +44,9 @@ node_modules/
 dist/
 dist-ssr/
 *.local
+
+# Local AI tooling (Claude Code skills/config, working plans) — not part of the app
+.agents/
+.claude/skills/
+skills-lock.json
+plans/
