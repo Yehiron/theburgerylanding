@@ -1,26 +1,28 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowUp, FiInstagram, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import logoblanco from "../assets/images/logoblanco.png";
 
 export default function Footer() {
+  const shouldReduceMotion = useReducedMotion();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const footerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { duration: 0.8, ease: "easeOut", staggerChildren: 0.1 } 
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: shouldReduceMotion ? 0.01 : 0.8, ease: "easeOut", staggerChildren: shouldReduceMotion ? 0 : 0.1 }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: shouldReduceMotion ? 0.01 : 0.5, ease: "easeOut" } }
   };
 
   return (
@@ -38,7 +40,7 @@ export default function Footer() {
           
           {/* Col 1: Logo & Description */}
           <motion.div variants={itemVariants} className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
-            <Link to="/" className="inline-block transform hover:scale-102 transition-transform duration-300">
+            <Link to="/" className="inline-block transform hover:scale-[1.02] transition-transform duration-300">
               <img
                 src={logoblanco}
                 alt="The Burgery Logo"
@@ -116,8 +118,8 @@ export default function Footer() {
                 href="https://www.instagram.com/theburgery_/?hl=es" 
                 target="_blank" 
                 rel="noreferrer"
-                whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
                 className="flex items-center gap-2 px-5 py-3 rounded-full border border-white/10 bg-white/5 text-gray-300 hover:text-white transition-all duration-300 text-sm font-semibold tracking-wide"
               >
                 <FiInstagram size={18} />
@@ -147,8 +149,8 @@ export default function Footer() {
           {/* Scroll to Top */}
           <motion.button
             onClick={scrollToTop}
-            whileHover={{ scale: 1.1, borderColor: "rgba(255,255,255,0.5)", backgroundColor: "rgba(255,255,255,0.08)" }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.1, borderColor: "rgba(255,255,255,0.5)", backgroundColor: "rgba(255,255,255,0.08)" }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
             className="flex items-center justify-center w-10 h-10 rounded-full border border-white/15 bg-[#0F0F0F] text-gray-400 hover:text-white transition-all duration-300 cursor-pointer shadow-lg"
             aria-label="Volver arriba"
           >

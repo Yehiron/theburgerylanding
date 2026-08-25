@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -11,6 +11,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const shouldReduceMotion = useReducedMotion();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -37,9 +38,10 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-light flex items-center justify-center p-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+      <motion.div
+        initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={shouldReduceMotion ? { duration: 0.01 } : undefined}
         className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8"
       >
         <div className="text-center mb-8">

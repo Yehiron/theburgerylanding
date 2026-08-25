@@ -3,13 +3,14 @@ import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiMenu, FiX } from 'react-icons/fi';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import logo from "../assets/images/logo.png";
 
 export default function Navbar() {
   const { cartCount, setIsCartOpen } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
 
   const isActive = (path) => location.pathname === path;
 
@@ -53,8 +54,9 @@ export default function Navbar() {
               <FiShoppingCart size={24} />
               {cartCount > 0 && (
                 <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={shouldReduceMotion ? { duration: 0.01 } : undefined}
                   className="absolute -top-1 -right-1 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold"
                 >
                   {cartCount}
@@ -64,7 +66,7 @@ export default function Navbar() {
           </div>
 
           <div className="md:hidden flex items-center space-x-4">
-            <button onClick={() => setIsCartOpen(true)} className="relative p-3 rounded-full tap-target">
+            <button onClick={() => { setIsCartOpen(true); setIsMenuOpen(false); }} className="relative p-3 rounded-full tap-target">
               <FiShoppingCart size={24} />
               {cartCount > 0 && (
                 <span className="absolute top-0 right-0 bg-black text-white text-xs w-4 h-4 flex items-center justify-center rounded-full">
@@ -90,8 +92,9 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen(false)}
           ></div>
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={shouldReduceMotion ? { duration: 0.01 } : undefined}
             className="md:hidden bg-white shadow-lg fixed top-20 inset-x-0 z-50"
           >
           <div className="px-4 pt-2 pb-6 space-y-2">

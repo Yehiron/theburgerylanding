@@ -196,7 +196,7 @@ export default function MenuPage() {
                       
                       <button 
                         onClick={() => handleAddToCartClick(product)}
-                        className="w-full py-4 md:py-3 min-h-[48px] bg-light hover:bg-dark hover:text-white text-dark font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                        className="w-full py-4 md:py-3 min-h-[48px] bg-light hover:bg-dark hover:text-white text-dark font-bold rounded-xl transition-all active:scale-[0.97] flex items-center justify-center gap-2"
                       >
                         <FiPlus /> Agregar
                       </button>
@@ -285,14 +285,14 @@ export default function MenuPage() {
               <div className="flex gap-4">
                 <button
                   onClick={() => setSelectedProduct(null)}
-                  className="flex-1 py-3 bg-gray-100 text-dark font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                  className="flex-1 py-3 bg-gray-100 text-dark font-bold rounded-xl hover:bg-gray-200 transition-all active:scale-[0.97]"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmAddToCart}
                   disabled={hasOptions && totalOptionQuantity === 0}
-                  className="flex-1 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:hover:bg-black"
+                  className="flex-1 py-3 bg-black text-white font-bold rounded-xl hover:bg-gray-800 transition-all active:scale-[0.97] disabled:opacity-40 disabled:hover:bg-black disabled:active:scale-100"
                 >
                   {hasOptions
                     ? (totalOptionQuantity > 0 ? `Agregar ${totalOptionQuantity} · $${money.format(totalOptionPrice)}` : 'Elige al menos 1')

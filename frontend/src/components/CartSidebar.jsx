@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { FiX, FiPlus, FiMinus, FiTrash2, FiShoppingCart } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 const money = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
 
 export default function CartSidebar() {
   const { cart, cartCount, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, clearCart, cartTotal } = useCart();
+  const shouldReduceMotion = useReducedMotion();
   const [isCheckout, setIsCheckout] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -74,37 +75,33 @@ export default function CartSidebar() {
 
   return (
     <>
-      <AnimatePresence>
-        {cartCount > 0 && !isCartOpen && (
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            onClick={() => setIsCartOpen(true)}
-            className="fixed right-4 bottom-5 sm:right-6 sm:bottom-6 z-40 rounded-full bg-black px-5 py-4 text-sm font-bold text-white shadow-xl transition-transform hover:scale-105 flex items-center gap-2"
-          >
-            <FiShoppingCart size={20} />
-            Ir al carrito
-            <span className="min-w-6 h-6 px-1 rounded-full bg-black inline-flex items-center justify-center text-xs">{cartCount}</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
- 
-      <AnimatePresence>
+      {cartCount > 0 && !isCartOpen && (
+        <motion.button
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={shouldReduceMotion ? { duration: 0.01 } : undefined}
+          onClick={() => setIsCartOpen(true)}
+          className="fixed right-4 bottom-5 sm:right-6 sm:bottom-6 z-40 rounded-full bg-black px-5 py-4 text-sm font-bold text-white shadow-xl transition-transform hover:scale-105 flex items-center gap-2"
+        >
+          <FiShoppingCart size={20} />
+          Ir al carrito
+          <span className="min-w-6 h-6 px-1 rounded-full bg-black inline-flex items-center justify-center text-xs">{cartCount}</span>
+        </motion.button>
+      )}
+
       {isCartOpen && (
         <>
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 0.5 }} 
-            exit={{ opacity: 0 }}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            transition={shouldReduceMotion ? { duration: 0.01 } : undefined}
             onClick={closeCart}
             className="fixed inset-0 bg-black z-50"
           />
-          <motion.div 
-            initial={{ x: '100%' }}
+          <motion.div
+            initial={{ x: shouldReduceMotion ? 0 : '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            transition={shouldReduceMotion ? { duration: 0.01 } : { type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl z-50 flex flex-col"
           >
             <div className="p-6 border-b flex justify-between items-center bg-gray-50">
@@ -228,7 +225,7 @@ export default function CartSidebar() {
                     <button
                       onClick={handleSendOrder}
                       disabled={!canSubmitOrder}
-                      className="w-full rounded-xl bg-black py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90 disabled:opacity-40 disabled:hover:bg-opacity-100"
+                      className="w-full rounded-xl bg-black py-4 font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90 active:scale-[0.97] disabled:opacity-40 disabled:hover:bg-opacity-100 disabled:active:scale-100"
                     >
                       Comprar por WhatsApp
                     </button>
@@ -238,10 +235,10 @@ export default function CartSidebar() {
                   </>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    <button onClick={closeCart} className="rounded-xl border-2 border-black bg-white px-3 py-4 text-sm font-bold uppercase tracking-wide text-black transition-colors hover:bg-gray-100">
+                    <button onClick={closeCart} className="rounded-xl border-2 border-black bg-white px-3 py-4 text-sm font-bold uppercase tracking-wide text-black transition-all active:scale-[0.97] hover:bg-gray-100">
                       Seguir comprando
                     </button>
-                    <button onClick={() => setIsCheckout(true)} className="rounded-xl bg-black px-3 py-4 text-sm font-bold uppercase tracking-wide text-white transition-all hover:bg-opacity-90">
+                    <button onClick={() => setIsCheckout(true)} className="rounded-xl bg-black px-3 py-4 text-sm font-bold uppercase tracking-wide text-white transition-all active:scale-[0.97] hover:bg-opacity-90">
                       Terminar compra
                     </button>
                   </div>
@@ -251,7 +248,6 @@ export default function CartSidebar() {
           </motion.div>
         </>
       )}
-      </AnimatePresence>
     </>
   );
 }
