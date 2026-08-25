@@ -47,6 +47,6 @@ dist-ssr/
 
 # Local AI tooling (Claude Code skills/config, working plans) — not part of the app
 .agents/
-.claude/skills/
+.claude/
 skills-lock.json
 plans/
